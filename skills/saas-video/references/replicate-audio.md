@@ -1,0 +1,123 @@
+# Generating voiceover and music with Replicate
+
+Two models, both called through `scripts/replicate-audio.mjs` (zero-dependency
+Node 18+ script, copied into the generated project):
+
+- **Voiceover**: [`google/gemini-3.1-flash-tts`](https://replicate.com/google/gemini-3.1-flash-tts)
+  — fast, expressive TTS with ~30 voices and 70+ languages.
+- **Music**: [`google/lyria-2`](https://replicate.com/google/lyria-2)
+  — 48 kHz stereo music from a text prompt, clips of roughly 30 seconds.
+
+## Token
+
+The script reads `REPLICATE_API_TOKEN` from the environment or a `.env` file in
+the working directory (or one directory up). Tokens come from
+https://replicate.com/account/api-tokens. Never print, echo, or commit the token.
+
+## Always discover the schema first
+
+Model inputs on Replicate change over time. Before writing the audio config, run:
+
+```bash
+node scripts/replicate-audio.mjs schema google/gemini-3.1-flash-tts
+node scripts/replicate-audio.mjs schema google/lyria-2
+```
+
+This prints the current input schema (parameter names, types, defaults, enums —
+including the authoritative voice list). Build the config's `input` objects
+**strictly from the discovered schema**; the parameter names below are the
+expected shape but the live schema wins.
+
+## Voice catalog (Gemini TTS prebuilt voices)
+
+Verify against the live schema — names occasionally change. All voices speak all
+supported languages; pick by character, write the narration in the target language.
+
+Good defaults for marketing narration:
+
+| Voice | Character | Fits |
+|---|---|---|
+| Sulafat | warm | friendly all-rounder, consumer products (safe default) |
+| Puck | upbeat | energetic launches, social formats |
+| Charon | informative | dev tools, technical B2B |
+| Kore | firm | confident enterprise pitch |
+| Achird | friendly | approachable onboarding tone |
+| Sadaltager | knowledgeable | expert explainer |
+| Zephyr | bright | light, optimistic consumer feel |
+| Fenrir | excitable | high-energy hype videos |
+| Achernar | soft | calm, premium, minimal styles |
+| Gacrux | mature | trust-heavy sectors (fintech, health) |
+
+Other prebuilt voices typically available: Leda, Orus, Aoede, Callirrhoe,
+Autonoe, Enceladus, Iapetus, Umbriel, Algieba, Despina, Erinome, Algenib,
+Rasalgethi, Laomedeia, Alnilam, Schedar, Pulcherrima, Zubenelgenubi,
+Vindemiatrix, Sadachbia.
+
+When asking the user, offer 3–4 voices that fit the chosen style with one-word
+characters — don't dump the full table.
+
+## Writing TTS text
+
+- One clip per scene. Per-scene files give exact scene timing and let you
+  regenerate a single scene cheaply.
+- Write for the ear: short sentences, contractions, no abbreviations
+  ("A P I" vs "API" — spell out anything ambiguous the way it should be spoken).
+- Punctuation shapes prosody: commas and em-dashes create pauses; end every
+  clip with terminal punctuation.
+- Numbers: write them the way they should be read ("over ten thousand teams").
+- If (and only if) the discovered schema has a dedicated style/instructions
+  parameter, use it for delivery hints ("enthusiastic, energetic delivery").
+  Do **not** embed stage directions in the text field — the model may read
+  them aloud.
+
+## Writing the Lyria-2 music prompt
+
+- Formula: genre + mood + instrumentation + tempo/energy + **"instrumental"**.
+- Always add `"negative_prompt": "vocals, singing"` (schema permitting) — vocals
+  fight the voiceover.
+- Each style preset in `styles.md` ships a ready music prompt; adapt to user taste.
+- Output is ~30 s of 48 kHz stereo WAV. For longer videos, loop it in Remotion
+  (`<Audio loop>`); the `Soundtrack` component handles loop, fades, and ducking.
+
+## Config and run
+
+```json
+{
+  "outputDir": "public/audio",
+  "clips": [
+    { "id": "scene-01", "model": "google/gemini-3.1-flash-tts",
+      "input": { "text": "Tired of deploys that take all afternoon?", "voice": "Puck" } },
+    { "id": "scene-02", "model": "google/gemini-3.1-flash-tts",
+      "input": { "text": "Acme ships your code in under a minute.", "voice": "Puck" } },
+    { "id": "music", "model": "google/lyria-2",
+      "input": { "prompt": "uplifting modern electronic, warm analog synths, steady beat, energetic, instrumental",
+                 "negative_prompt": "vocals, singing" } }
+  ]
+}
+```
+
+```bash
+node scripts/replicate-audio.mjs generate audio-config.json          # everything
+node scripts/replicate-audio.mjs generate audio-config.json scene-02 # one clip
+```
+
+The script polls until each prediction finishes, downloads files as
+`public/audio/<id>.<ext>`, prints progress to stderr and a JSON summary (with
+durations when `ffprobe` is installed) to stdout. On failure it retries once.
+
+After generation, confirm every expected file exists in `public/audio/` before
+building the video.
+
+## Mixing levels (used by the `Soundtrack` component)
+
+- Voiceover: full volume (1.0).
+- Music under voiceover: 0.15–0.22. Music without voiceover (intro/outro or
+  voiceless videos): 0.3–0.4.
+- Fade music in over ~1.5 s, fade out over the final ~2 s.
+
+## Costs
+
+Every clip is a paid API call. A typical 30 s video = 4–6 TTS clips + 1 music
+clip — usually well under a dollar, but check current pricing on the model
+pages. This is why the script/scene plan must be approved before Phase 5, and
+why regeneration targets single clip ids.

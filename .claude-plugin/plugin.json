@@ -1,0 +1,12 @@
+{
+  "name": "saas-video",
+  "description": "Turn any software repo into a polished marketing video: Remotion animations, AI voiceover (Replicate Gemini TTS), AI soundtrack (Lyria-2), keyword captions, and device mockups.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Senseering"
+  },
+  "homepage": "https://github.com/Senseering/claude-skill-saas-video",
+  "repository": "https://github.com/Senseering/claude-skill-saas-video",
+  "license": "MIT",
+  "keywords": ["remotion", "video", "marketing", "tts", "replicate", "music"]
+}
