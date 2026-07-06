@@ -77,23 +77,14 @@ export const PhoneFrame: React.FC<{
         }}
       >
         {children}
-        <div /* dynamic island */
-          style={{
-            position: "absolute",
-            top: width * 0.035,
-            left: "50%",
-            translate: "-50% 0",
-            width: width * 0.29,
-            height: width * 0.085,
-            borderRadius: 999,
-            background: "#000",
-          }}
-        />
       </div>
     </div>
   );
 };
 ```
+
+The screen is deliberately clean — **no notch or dynamic island** (they read
+as visual noise at video sizes). Don't add one unless the user asks.
 
 Sizing guidance: 16:9 frame → phone width ~360–420 px as a side element,
 ~500 px as the hero. 9:16 frame → phone width ~55–65 % of composition width,
@@ -504,6 +495,174 @@ export const CTAEndCard: React.FC<{ name: string; tagline: string; url: string }
   );
 };
 ```
+
+## Cinematic cuts (transitions with character)
+
+A fade between every scene reads as a slideshow. Each style preset names a
+"transition kit" (styles.md); these are the building blocks.
+
+### FloatingHero — a device that travels across scenes
+
+The signature move: a phone/browser that survives every cut and visibly flies
+to a new position, rotation, and size per scene. Render it as a sibling
+**above** `<TransitionSeries>` so it persists across transitions. Keyframes
+are GLOBAL frames — use the scene start frames computed in `calculateMetadata`
+(cumulative durations minus transition overlaps).
+
+```tsx
+import React from "react";
+import { Easing, interpolate, useCurrentFrame } from "remotion";
+
+type HeroKeyframe = {
+  frame: number;
+  x: number;
+  y: number;
+  scale?: number;
+  rotate?: number;
+  opacity?: number;
+};
+
+export const FloatingHero: React.FC<{
+  keyframes: HeroKeyframe[]; // frames strictly increasing
+  children: React.ReactNode;
+}> = ({ keyframes, children }) => {
+  const frame = useCurrentFrame();
+  const frames = keyframes.map((k) => k.frame);
+  const opts = {
+    extrapolateLeft: "clamp" as const,
+    extrapolateRight: "clamp" as const,
+    easing: Easing.inOut(Easing.cubic),
+  };
+  const get = (sel: (k: HeroKeyframe) => number) =>
+    interpolate(frame, frames, keyframes.map(sel), opts);
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: 0,
+        top: 0,
+        translate: `${get((k) => k.x)}px ${get((k) => k.y) + Math.sin(frame / 30) * 6}px`,
+        scale: String(get((k) => k.scale ?? 1)),
+        rotate: `${get((k) => k.rotate ?? 0)}deg`,
+        opacity: get((k) => k.opacity ?? 1),
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+```
+
+```tsx
+// sceneStart(i) = cumulative durations of scenes 0..i-1 minus i * TRANSITION_FRAMES
+<AbsoluteFill>
+  <TransitionSeries>{items}</TransitionSeries>
+  <FloatingHero
+    keyframes={[
+      { frame: 0, x: 1180, y: 260, rotate: -8 },
+      { frame: sceneStart(1), x: 240, y: 180, rotate: 6, scale: 0.85 },
+      { frame: sceneStart(2), x: 760, y: 140, rotate: -4, scale: 1.15 },
+      { frame: sceneStart(3), x: 900, y: -1400, rotate: -25 }, // fly out before the CTA
+    ]}
+  >
+    <PhoneFrame width={340}>{/* screen content */}</PhoneFrame>
+  </FloatingHero>
+  <Soundtrack file="audio/music.wav" />
+</AbsoluteFill>
+```
+
+Rules: scenes under a FloatingHero must reserve empty layout space where the
+hero will sit (it floats over them); fly it out (offscreen or opacity 0 over
+~10 frames) before scenes where it doesn't belong; never park it in the same
+spot twice.
+
+### Interstitial — a full scene as a transition
+
+A 0.6–0.9 s full-bleed beat between chapters: hard background slam + one huge
+word ("LIVE.", "PRIVATE.", the product name). Insert as a normal
+`TransitionSeries.Sequence` with **no narration audio** and a fixed duration
+(18–27 frames), joined with hard cuts or 6-frame fades plus a whoosh SFX.
+
+```tsx
+import React from "react";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
+import { theme } from "../theme";
+
+export const Interstitial: React.FC<{ word: string; bg: string; color: string }> = ({
+  word,
+  bg,
+  color,
+}) => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{ background: bg, justifyContent: "center", alignItems: "center" }}>
+      <div
+        style={{
+          fontFamily: theme.fontDisplay,
+          fontSize: 190,
+          fontWeight: 900,
+          color,
+          letterSpacing: "-0.02em",
+          opacity: interpolate(frame, [0, 3], [0, 1], { extrapolateRight: "clamp" }),
+          scale: String(
+            interpolate(frame, [0, 6], [1.35, 1], {
+              extrapolateRight: "clamp",
+              easing: Easing.out(Easing.cubic),
+            }),
+          ),
+        }}
+      >
+        {word}
+      </div>
+    </AbsoluteFill>
+  );
+};
+```
+
+### Zoom-through cut (into a screen)
+
+End scene A by scaling the entire scene into the device's screen; scene B
+starts slightly overscaled and settles:
+
+- Scene A, last ~12 frames: scene wrapper `scale: 1 → 5` with
+  `transformOrigin` at the screen center, `opacity: 1 → 0` over the final 4 frames.
+- Scene B, first ~10 frames: `scale: 1.15 → 1`.
+- Pair with an 8-frame `fade()` transition and a whoosh SFX at the cut.
+
+### SfxLayer — sound effects
+
+Free hosted SFX (from remotion.media): `whoosh.wav`, `whip.wav`,
+`mouse-click.wav`, `switch.wav`, `ding.wav`, `page-turn.wav`,
+`shutter-modern.wav`. Larger library:
+https://github.com/kapishdima/soundcn/tree/main/assets. For render
+reliability, download the ones you use into `public/sfx/` (e.g.
+`curl -o public/sfx/whoosh.wav https://remotion.media/whoosh.wav`) and
+reference via `staticFile()`.
+
+```tsx
+import React from "react";
+import { Sequence, staticFile } from "remotion";
+import { Audio } from "@remotion/media";
+
+// Rendered once at the top level; frames are GLOBAL.
+export const SfxLayer: React.FC<{
+  events: { frame: number; src: string; volume?: number }[];
+}> = ({ events }) => (
+  <>
+    {events.map((e, i) => (
+      <Sequence key={i} from={e.frame}>
+        <Audio src={staticFile(e.src)} volume={e.volume ?? 0.5} />
+      </Sequence>
+    ))}
+  </>
+);
+```
+
+Standard placement: one whoosh/whip on every cut (at
+`sceneStart(i) - TRANSITION_FRAMES / 2`), a click at each `Cursor` waypoint, a
+ding/switch when the headline number or CTA lands. Volumes 0.35–0.6, under the
+voice. Restraint: one SFX per cut plus at most one accent per scene — more
+sounds cheap.
 
 ## Cursor (animated pointer for UI recreations)
 

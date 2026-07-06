@@ -80,19 +80,50 @@ the CTA) makes the same voice sound like a *different narrator* in every scene,
 which reads as a bug in the final video. Pick one delivery that fits the whole
 script and reuse the string.
 
-The `generate` command enforces this: clips sharing a TTS model must have
-identical inputs apart from `text`, or the script exits with an error listing
-the differing fields. Pass `--allow-input-drift` only for intentional
-multi-voice videos (e.g. a two-person dialogue).
+The `generate` command enforces this for narration clips (those with a `text`
+input): clips sharing a model must have identical inputs apart from `text`, or
+the script exits with an error listing the differing fields. Pass
+`--allow-input-drift` only for intentional multi-voice videos (e.g. a
+two-person dialogue). Music clips are exempt — two Lyria candidates with
+different prompts are fine.
 
 ## Writing the Lyria-2 music prompt
 
-- Formula: genre + mood + instrumentation + tempo/energy + **"instrumental"**.
-- Always add `"negative_prompt": "vocals, singing"` (schema permitting) — vocals
-  fight the voiceover.
-- Each style preset in `styles.md` ships a ready music prompt; adapt to user taste.
-- Output is ~30 s of 48 kHz stereo WAV. For longer videos, loop it in Remotion
-  (`<Audio loop>`); the `Soundtrack` component handles loop, fades, and ducking.
+Generic prompts produce elevator music — "uplifting modern electronic,
+energetic, instrumental" is exactly how you get a boring track. A commercial-
+sounding prompt is *specific* on five axes:
+
+1. **Genre with attitude**: "big-room trap hybrid", "cinematic dark
+   electronic", "modern commercial electro-pop" — not just "electronic".
+2. **Tempo**: name a BPM ("126 BPM", "at 140 BPM"). It anchors the energy.
+3. **Signature instruments**: "punchy sidechained synth bass", "booming 808s",
+   "felt piano", "brass stabs" — 2–4 concrete sounds.
+4. **Production adjectives**: "glossy radio-ready production", "loud punchy
+   mix", "wide stereo" — this is what separates commercial from stock.
+5. **Arc**: "tense risers releasing into a heavy drop", "euphoric chorus lift
+   with a big drum fill" — a 30 s clip needs one moment of payoff.
+
+Plus always **"instrumental"** in the prompt and
+`"negative_prompt": "vocals, singing"` (schema permitting) — vocals fight the
+voiceover. Each style preset in `styles.md` ships a ready prompt built this
+way; adapt it to the user's taste and ask for reference genres/artists if they
+have opinions.
+
+**Generate two candidates.** Music taste is personal and a re-roll is cheap.
+Add two clips with distinct prompts (e.g. `music-a` safer, `music-b` bolder),
+then have the user listen (`open public/audio/music-a.wav`) and pick. Wire the
+winner into `Soundtrack`; keep the loser on disk in case they change their mind.
+
+Output is ~30 s of 48 kHz stereo WAV. For longer videos, loop it in Remotion
+(`<Audio loop>`); the `Soundtrack` component handles loop, fades, and ducking.
+
+## Sound effects (free — not Replicate)
+
+Whooshes on cuts, clicks on cursor actions, a ding when the big number lands.
+These come from the free remotion.media library (whoosh.wav, whip.wav,
+mouse-click.wav, switch.wav, ding.wav, page-turn.wav…) — see the `SfxLayer`
+section in `components.md` for the list, download command, and placement
+rules. No schema discovery or API cost involved.
 
 ## Config and run
 

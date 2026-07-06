@@ -90,12 +90,16 @@ const SCENE_TAIL_SECONDS = 0.6;               // breathing room after the voice
 
 const calculateMetadata: CalculateMetadataFunction<VideoProps> = async ({ props }) => {
   const durations = await Promise.all(
-    props.scenes.map((s) => getAudioDuration(staticFile(s.audio))),
+    props.scenes.map((s) =>
+      s.audio ? getAudioDuration(staticFile(s.audio)) : Promise.resolve(null),
+    ),
   );
   const timedScenes = props.scenes.map((scene, i) => ({
     ...scene,
-    audioDurationInSeconds: durations[i],
-    durationInFrames: Math.round((durations[i] + SCENE_TAIL_SECONDS) * FPS),
+    audioDurationInSeconds: durations[i] ?? 0,
+    durationInFrames: durations[i]
+      ? Math.round((durations[i] + SCENE_TAIL_SECONDS) * FPS)
+      : (scene.durationInFrames ?? Math.round(0.8 * FPS)), // interstitials: fixed length
   }));
   const total =
     timedScenes.reduce((sum, s) => sum + s.durationInFrames, 0) -
@@ -147,7 +151,7 @@ export const MarketingVideo: React.FC<VideoProps> = ({ scenes }) => {
     items.push(
       <TransitionSeries.Sequence key={scene.id} durationInFrames={scene.durationInFrames}>
         <SceneRenderer scene={scene} index={i} />
-        <Audio src={staticFile(scene.audio)} />
+        {scene.audio ? <Audio src={staticFile(scene.audio)} /> : null}
       </TransitionSeries.Sequence>,
     );
   });
@@ -164,6 +168,27 @@ export const MarketingVideo: React.FC<VideoProps> = ({ scenes }) => {
 Other presentations: `slide({direction: "from-right"})`, `wipe()`, `flip()`,
 `clockWipe()` from `@remotion/transitions/<name>` — pick per style preset.
 `springTiming({ config: { damping: 200 } })` gives organic motion.
+
+## Every scene must look different (variety)
+
+If all scenes share one shell (centered content + caption strip at the bottom),
+the video feels like a template no matter how good each scene is. Give every
+scene a distinct **silhouette** — assign a different one per scene in the plan:
+
+1. Full-bleed typography, no mockup
+2. Device hero centered (phone/browser dominates the frame)
+3. Split: copy on one side, device on the other (mirror it next time)
+4. UI full-frame: browser mockup at ~90 % width, camera slowly zooming in
+5. Interstitial word-slam (0.6–0.9 s, no narration)
+6. End card
+
+Vary the cuts the same way — one `fade()` everywhere is the transition version
+of a slideshow. Use the preset's transition kit (styles.md) built from the
+cinematic patterns in components.md: a `FloatingHero` device that travels
+across cuts, zoom-throughs into screens, interstitials, slides/wipes with a
+whoosh SFX on every cut. QA check: lay the per-scene stills side by side — no
+two scenes should share a layout, and the hero device must never sit in the
+same spot twice.
 
 ## Choreography: fill the whole scene with motion
 

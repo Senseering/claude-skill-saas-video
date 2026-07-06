@@ -117,7 +117,16 @@ Then write the narration and scene plan:
 - **Pacing**: TTS speaks ≈ 2.5 words/second. A 30 s video holds ~70 words total.
   Leave breathing room — under-write rather than over-write.
 - **Structure**: Hook (problem or bold claim) → features (one scene each, one
-  idea per scene) → CTA end card (product name, tagline, URL).
+  idea per scene) → CTA end card (product name, tagline, URL). For ≥ 30 s
+  videos, consider 1–2 interstitial word-slams between chapters (no narration).
+- **Copy quality**: the narration must survive being read aloud. Every
+  sentence carries ONE concrete idea in plain spoken language — "you" language,
+  active voice, specifics and numbers instead of adjectives. The hook names
+  the viewer's problem or makes one bold claim in words a person would
+  actually say; never open with abstract poetry about the product. Banned
+  filler: "turns X into Y", "seamlessly", "empowers", "unlock", "like never
+  before", "a new way to". Test: read each line aloud — if it could be about
+  any product, rewrite it.
 - **Per scene**:
   - id and narration (1–2 spoken sentences, written for the ear);
   - **visual**: which real screen is recreated inside which frame
@@ -131,7 +140,10 @@ Then write the narration and scene plan:
     alone. Good: "LIVE CROWD COUNT", "100% ANONYMOUS", "ZERO SETUP".
     Bad: connective fragments like "right now", "how busy", "works with";
   - **beats**: which narration word triggers which visual event — the
-    choreography input for Phase 6.
+    choreography input for Phase 6;
+  - **silhouette + cut**: which layout silhouette the scene uses (variety
+    section of the guide) and which transition from the preset's kit leads
+    into it — no two adjacent scenes share either.
 - **One narrator**: exactly one voice AND one delivery-style prompt for the
   whole video (see `replicate-audio.md` — varying the style per clip makes the
   narrator sound like a different person between scenes).
@@ -151,9 +163,16 @@ Load `references/replicate-audio.md`, then:
    `node scripts/replicate-audio.mjs schema google/gemini-3.1-flash-tts`
    and `... schema google/lyria-2`.
 3. Write `audio-config.json`: one TTS clip **per scene** (per-scene files make
-   scene timing and single-scene regeneration trivial) + one music clip.
+   scene timing and single-scene regeneration trivial) + **two music
+   candidates** (`music-a`, `music-b`) with distinct prompts built per the
+   music-prompt axes in the reference — never one generic prompt.
 4. Run `node scripts/replicate-audio.mjs generate audio-config.json`.
    Files land in `public/audio/`. Verify every expected file exists.
+5. Have the user listen to both music candidates
+   (`open public/audio/music-a.wav`) and pick; wire the winner into
+   `Soundtrack`.
+6. Download the needed sound effects (free, no API) into `public/sfx/` —
+   list and placement rules in `components.md` (SfxLayer).
 
 ## Phase 6 — Build the Remotion project
 
@@ -167,16 +186,22 @@ preset in `references/styles.md`. Then:
 3. Copy the needed components from `components.md` (device frames, keyword
    captions, soundtrack, backgrounds) and adapt them to the theme.
 4. Build one component per scene, recreating the real screen from its Phase 4
-   screen spec inside a device frame. Scene lengths are **driven by the actual
-   TTS audio durations** via `calculateMetadata` (pattern in the guide) —
-   never hardcode scene durations.
+   screen spec inside a device frame, with the distinct layout silhouette the
+   plan assigned. Scene lengths are **driven by the actual TTS audio
+   durations** via `calculateMetadata` (pattern in the guide) — never
+   hardcode scene durations.
 5. Choreograph every scene across its FULL duration (choreography section of
    the guide): time visual events to narration beats with the `atWord()`
    helper, keep an ambient motion layer running throughout, and never let the
    frame freeze for more than ~1.5 s. Front-loading all animation into the
    first second produces a slideshow — the #1 quality killer.
-6. Wire scenes into a `TransitionSeries` with per-scene voiceover audio and the
-   looping, ducked soundtrack.
+6. Wire scenes into a `TransitionSeries` with per-scene voiceover audio and
+   the looping, ducked soundtrack — cutting with the preset's transition kit
+   (`FloatingHero` device traveling across scenes, interstitials,
+   zoom-throughs, slides — see components.md), never a plain fade between
+   every scene.
+7. Add an `SfxLayer`: a whoosh/whip on every cut, a click per cursor action,
+   at most one accent per scene (e.g. a ding when the big number lands).
 
 ## Phase 7 — Visual QA (required)
 
@@ -190,6 +215,8 @@ then **look at every image** and check:
   contrast; keyword captions legible; mockups not clipped.
 - The recreated screens actually resemble the product — compare against the
   real component code, not memory.
+- Variety: lay one still per scene side by side — no two scenes share the same
+  layout silhouette, and the hero device never sits in the same spot twice.
 
 Fix and re-render stills until clean. Offer `npx remotion studio` if the user
 wants to preview interactively.

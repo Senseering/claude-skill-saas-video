@@ -3,7 +3,9 @@
 Five presets. Present the 3–4 that best fit the product; users can mix or
 describe their own. Every preset defines: palette, fonts
 (`@remotion/google-fonts/<Name>` import names), motion language, caption
-treatment, mockup usage, transitions, and a ready Lyria-2 music prompt.
+treatment, mockup usage, a **transition kit** (built from the cinematic
+patterns in components.md — never a plain fade between every scene), and a
+ready Lyria-2 music prompt.
 
 **Brand color rule:** when Phase 2 extracted brand colors, they replace the
 preset's accent (and possibly background) as long as contrast stays strong.
@@ -23,9 +25,13 @@ Feels like: Stripe/Linear launch video. Dark, premium, vibrant.
   12–20 frame entrances, slow continuous drift on backgrounds and mockups.
 - **Captions**: white uppercase keywords, bottom-center (KeywordCaptions default).
 - **Mockups**: GlassCard features, BrowserFrame (dark) or PhoneFrame hero.
-- **Transitions**: `fade()` 15 frames.
-- **Music prompt**: `"uplifting modern electronic, warm analog synths, steady
-  four-on-the-floor beat, energetic, inspiring, instrumental"`.
+- **Transition kit**: `FloatingHero` phone traveling across scenes as the
+  through-line; zoom-through into the device screen for the feature reveal;
+  whoosh SFX on every cut; `fade()` reserved for the end card only.
+- **Music prompt**: `"modern commercial electro-pop, punchy sidechained synth
+  bass, bright plucks, tight four-on-the-floor kick at 122 BPM, euphoric
+  chorus lift with a big drum fill, glossy radio-ready production, wide
+  stereo, confident, energetic, instrumental"`.
 - Best for: dev tools with polish, B2B SaaS, launches, 16:9.
 
 ## 2. Dark Tech — developer tools / infrastructure
@@ -44,9 +50,13 @@ Feels like: terminal-native, Vercel/GitHub vibe.
   `>` prefix.
 - **Mockups**: BrowserFrame (dark) with terminal-style panels; animated
   monospace command lines; bar/line charts in accent color.
-- **Transitions**: `slide({ direction: "from-right" })` 10 frames or hard cuts.
-- **Music prompt**: `"dark minimal techno, pulsing bassline, glitchy percussion,
-  futuristic, focused, instrumental"`.
+- **Transition kit**: hard cuts and 8-frame `slide({ direction: "from-right" })`
+  with whip.wav; black interstitial word-slams between chapters; a 2-frame
+  position/invert jitter on cuts for a glitch feel.
+- **Music prompt**: `"cinematic dark electronic, driving 126 BPM techno pulse,
+  distorted 808 bass hits, glitchy percussion fills, tense risers releasing
+  into a heavy drop, modern tech-trailer energy, punchy loud mix,
+  instrumental"`.
 - Best for: CLIs, APIs, infra, developer audiences.
 
 ## 3. Clean Light — calm, trustworthy B2B
@@ -62,9 +72,12 @@ Feels like: Notion/Figma marketing page in motion.
 - **Captions**: dark text keywords with an accent underline or highlighter
   sweep, not uppercase.
 - **Mockups**: BrowserFrame (light) with airy stylized UI; lots of whitespace.
-- **Transitions**: `fade()` 20 frames.
-- **Music prompt**: `"soft corporate piano and warm strings, hopeful, gentle
-  percussion, calm, instrumental"`.
+- **Transition kit**: gentle 18-frame `slide()` pushes with subtle parallax
+  (background moves slower than content); sparse page-turn SFX; a
+  `FloatingHero` browser drifting between two positions.
+- **Music prompt**: `"warm acoustic-electronic crossover, felt piano, soft
+  plucked guitar, gentle 100 BPM beat with claps, hopeful build with subtle
+  strings, premium advert feel, polished modern production, instrumental"`.
 - Best for: fintech, health, legal, enterprise buyers.
 
 ## 4. Kinetic Bold — high-energy social
@@ -81,9 +94,13 @@ Feels like: hype launch on TikTok. The typography IS the visual.
   centered, full-frame. Give every narration phrase its screen moment.
 - **Mockups**: minimal; occasional PhoneFrame popping in at an angle
   (`rotate: "-6deg"`).
-- **Transitions**: `slide()` alternating directions, 8 frames.
-- **Music prompt**: `"high-energy hip-hop beat, punchy drums, bold brass stabs,
-  confident, driving, instrumental"`.
+- **Transition kit**: the background color slam IS the cut (hard cut to a new
+  full-bleed color on the beat) plus 6-frame `slide()` in alternating
+  directions; whip/whoosh SFX on every slam; interstitial word-slams
+  constantly — this style is basically interstitials with narration.
+- **Music prompt**: `"big-room trap hip-hop hybrid, booming 808 bass, hard
+  snares at 140 BPM, bold brass stabs, DJ-style cuts and stutter fills, hype
+  anthem energy, loud punchy modern mix, instrumental"`.
 - Best for: 9:16 and 1:1, waitlists, consumer hype, ≤ 30 s.
 
 ## 5. Soft Playful — friendly consumer apps
@@ -100,9 +117,12 @@ Feels like: Duolingo/Headspace warmth.
 - **Captions**: keywords in white pill badges with the accent as text color,
   slight rotation per word.
 - **Mockups**: PhoneFrame hero front and center; emoji as icon accents are fine.
-- **Transitions**: `wipe()` or `clockWipe()` 12 frames.
-- **Music prompt**: `"cheerful indie pop, ukulele, handclaps, whistling, light,
-  playful, instrumental"`.
+- **Transition kit**: `clockWipe()` and bouncy `slide()` with spring timing;
+  pop/switch SFX on card entrances; the `FloatingHero` phone bounces to a new
+  corner each scene with ±10° rotation.
+- **Music prompt**: `"feel-good indie pop, bouncy bassline, bright marimba and
+  ukulele accents, claps and finger snaps at 112 BPM, cheerful whistling hook,
+  sunny advert energy, crisp modern production, instrumental"`.
 - Best for: consumer/mobile apps, onboarding, education.
 
 ---

@@ -185,12 +185,14 @@ const probeSeconds = (file) => {
   }
 };
 
-// Clips sharing a model (i.e. the voiceover scenes) must have identical
-// inputs except "text" — a different voice or style prompt per scene makes
-// the narrator audibly change between scenes.
+// Narration clips (those with a "text" input) sharing a model must have
+// identical inputs except "text" — a different voice or style prompt per
+// scene makes the narrator audibly change between scenes. Music clips are
+// exempt: several candidates with different prompts are legitimate.
 const findInputDrift = (clips) => {
   const byModel = new Map();
   for (const clip of clips) {
+    if (clip.input?.text === undefined) continue;
     if (!byModel.has(clip.model)) byModel.set(clip.model, []);
     byModel.get(clip.model).push(clip);
   }

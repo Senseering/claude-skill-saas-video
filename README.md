@@ -10,7 +10,12 @@ repo into a polished marketing video in one conversation:
 - **AI voiceover** — [google/gemini-3.1-flash-tts](https://replicate.com/google/gemini-3.1-flash-tts)
   on Replicate (30 voices, 70+ languages).
 - **AI soundtrack** — [google/lyria-2](https://replicate.com/google/lyria-2)
-  on Replicate (48 kHz stereo music from a text prompt).
+  on Replicate (48 kHz stereo music from a text prompt); two candidates are
+  generated so you pick the vibe. Plus free sound effects (whooshes on cuts,
+  clicks, dings).
+- **Cinematic cuts** — a hero device that flies across scene boundaries,
+  zoom-throughs into screens, interstitial word-slams; every scene gets a
+  distinct layout.
 - **Keyword captions** — while the voice talks, only the most important words
   flash on screen, synced to the narration.
 - Rendered to an **MP4** in 16:9, 9:16, or 1:1.
