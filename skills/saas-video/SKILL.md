@@ -71,6 +71,11 @@ Extract:
 - **Brand assets**: brand colors (tailwind.config, CSS custom properties, theme
   files), logo files (public/, assets/), font choices. Using the product's real
   brand colors in the video is a big quality win — extract them if they exist.
+- **UI inventory** (whenever the product has a UI): the app's actual screens
+  and views, found via routes and page components, and which screen each
+  candidate feature lives on. This matters as much as the feature list: scenes
+  are built from recreations of these real screens, so the video shows *this
+  product's* interface — not generic dashboards or icon metaphors.
 
 ## Phase 3 — Interview the user
 
@@ -101,20 +106,40 @@ Round 3 — audio:
 
 ## Phase 4 — Script and scene plan (approval gate)
 
-Write the narration and scene plan:
+First, study the screens behind the selected features: read the actual
+component/page source (layout regions, real nav/button/label texts, chart
+types, colors, sample data shapes) and write a short **screen spec** per
+feature scene. Scenes recreate these real screens — someone who knows the app
+must recognize it in the video.
+
+Then write the narration and scene plan:
 
 - **Pacing**: TTS speaks ≈ 2.5 words/second. A 30 s video holds ~70 words total.
   Leave breathing room — under-write rather than over-write.
 - **Structure**: Hook (problem or bold claim) → features (one scene each, one
   idea per scene) → CTA end card (product name, tagline, URL).
-- **Per scene**: id, narration (1–2 spoken sentences, written for the ear),
-  on-screen keywords (2–4 punchy words/phrases from the narration — only the
-  most important words appear on screen), and a one-line visual concept
-  (e.g. "phone mockup slides up, notification cards pop in").
+- **Per scene**:
+  - id and narration (1–2 spoken sentences, written for the ear);
+  - **visual**: which real screen is recreated inside which frame
+    (browser/phone) and the one interaction that animates while the voice
+    talks (e.g. "live map view with area polygons; device dots keep appearing
+    and the count badge ticks up"). Abstract/icon visuals are a last resort
+    for claims with no UI (e.g. privacy) — never for a feature that has a screen;
+  - **on-screen keywords** (2–4, verbatim from the narration): the payoff
+    words — benefits, numbers, the product name. Apply the **mute test**:
+    someone watching with sound off must get the pitch from the keywords
+    alone. Good: "LIVE CROWD COUNT", "100% ANONYMOUS", "ZERO SETUP".
+    Bad: connective fragments like "right now", "how busy", "works with";
+  - **beats**: which narration word triggers which visual event — the
+    choreography input for Phase 6.
+- **One narrator**: exactly one voice AND one delivery-style prompt for the
+  whole video (see `replicate-audio.md` — varying the style per clip makes the
+  narrator sound like a different person between scenes).
 
-Present the plan as a table (scene, narration, keywords, visual) plus the voice,
-music prompt, style, duration, and format choices. State that generating audio
-calls the paid Replicate API. **Get explicit approval before continuing.**
+Present the plan as a table (scene, narration, keywords, screen + interaction)
+plus the voice, music prompt, style, duration, and format choices. State that
+generating audio calls the paid Replicate API. **Get explicit approval before
+continuing.**
 
 ## Phase 5 — Generate audio
 
@@ -141,20 +166,33 @@ preset in `references/styles.md`. Then:
    colors where they fit.
 3. Copy the needed components from `components.md` (device frames, keyword
    captions, soundtrack, backgrounds) and adapt them to the theme.
-4. Build one component per scene. Scene lengths are **driven by the actual TTS
-   audio durations** via `calculateMetadata` (pattern in the guide) — never
-   hardcode scene durations.
-5. Wire scenes into a `TransitionSeries` with per-scene voiceover audio and the
+4. Build one component per scene, recreating the real screen from its Phase 4
+   screen spec inside a device frame. Scene lengths are **driven by the actual
+   TTS audio durations** via `calculateMetadata` (pattern in the guide) —
+   never hardcode scene durations.
+5. Choreograph every scene across its FULL duration (choreography section of
+   the guide): time visual events to narration beats with the `atWord()`
+   helper, keep an ambient motion layer running throughout, and never let the
+   frame freeze for more than ~1.5 s. Front-loading all animation into the
+   first second produces a slideshow — the #1 quality killer.
+6. Wire scenes into a `TransitionSeries` with per-scene voiceover audio and the
    looping, ducked soundtrack.
 
 ## Phase 7 — Visual QA (required)
 
-For every scene, render a still at its midpoint
-(`npx remotion still <CompId> out/qa/<scene>.png --frame=<n> --scale=0.5`),
-then **look at each image** and check: one clear focal point, text inside safe
-areas and not overflowing, readable contrast, keyword captions legible, mockups
-not clipped. Fix and re-render stills until clean. Offer
-`npx remotion studio` if the user wants to preview interactively.
+For every scene, render stills at ~20 %, ~55 %, and ~85 % of its duration
+(`npx remotion still <CompId> out/qa/<scene>-55.png --frame=<n> --scale=0.5`),
+then **look at every image** and check:
+
+- The three stills of each scene differ visibly. If two look identical, the
+  scene is frozen there — add choreography (this is the slideshow check).
+- One clear focal point; text inside safe areas and not overflowing; readable
+  contrast; keyword captions legible; mockups not clipped.
+- The recreated screens actually resemble the product — compare against the
+  real component code, not memory.
+
+Fix and re-render stills until clean. Offer `npx remotion studio` if the user
+wants to preview interactively.
 
 ## Phase 8 — Render and deliver
 
@@ -184,6 +222,12 @@ not clipped. Fix and re-render stills until clean. Offer
 - Transitions overlap scenes: total duration = sum of scenes − sum of
   transitions. Keep per-scene tail padding ≥ transition length so voiceover
   never gets cut.
+- Front-loaded animation: entrances that all finish in the first second leave
+  the rest of the scene as a freeze-frame. Spread events across the narration
+  with `atWord()` and keep ambient motion running.
+- TTS input drift: every voiceover clip must have identical input except
+  `text` (same voice, same style prompt verbatim) — otherwise the narrator
+  audibly changes between scenes. The generation script errors on drift.
 - Music from Lyria-2 is ~30 s — loop it with `<Audio loop>` for longer videos
   (the `Soundtrack` component in `components.md` handles loop + fades + ducking).
 - Never commit `.env` or the Replicate token; add `out/` and `node_modules/` to

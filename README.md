@@ -3,8 +3,10 @@
 A [Claude Code](https://claude.com/claude-code) skill that turns any software
 repo into a polished marketing video in one conversation:
 
-- **Remotion animations** — kinetic typography, animated device mockups
-  (iPhone / browser frames), stylized UI recreations, animated backgrounds. No screenshots.
+- **Remotion animations** — your app's real screens recreated in code inside
+  device mockups (iPhone / browser frames), with word-synced choreography,
+  kinetic typography, and animated backgrounds. No screenshots — but
+  recognizably *your* product.
 - **AI voiceover** — [google/gemini-3.1-flash-tts](https://replicate.com/google/gemini-3.1-flash-tts)
   on Replicate (30 voices, 70+ languages).
 - **AI soundtrack** — [google/lyria-2](https://replicate.com/google/lyria-2)

@@ -185,10 +185,44 @@ const probeSeconds = (file) => {
   }
 };
 
-const generate = async (configPath, onlyIds) => {
+// Clips sharing a model (i.e. the voiceover scenes) must have identical
+// inputs except "text" — a different voice or style prompt per scene makes
+// the narrator audibly change between scenes.
+const findInputDrift = (clips) => {
+  const byModel = new Map();
+  for (const clip of clips) {
+    if (!byModel.has(clip.model)) byModel.set(clip.model, []);
+    byModel.get(clip.model).push(clip);
+  }
+  const drift = [];
+  for (const [model, group] of byModel) {
+    if (group.length < 2) continue;
+    const keys = new Set(
+      group.flatMap((clip) => Object.keys(clip.input).filter((k) => k !== "text")),
+    );
+    for (const key of keys) {
+      const values = new Set(group.map((clip) => JSON.stringify(clip.input[key])));
+      if (values.size > 1) drift.push(`${model}: "${key}" differs across clips`);
+    }
+  }
+  return drift;
+};
+
+const generate = async (configPath, onlyIds, allowDrift) => {
   const config = JSON.parse(readFileSync(configPath, "utf8"));
   const outputDir = config.outputDir ?? "public/audio";
   mkdirSync(outputDir, { recursive: true });
+
+  // Check the FULL config, not just the requested subset, so regenerating a
+  // single clip still catches drift against its siblings.
+  const drift = findInputDrift(config.clips);
+  if (drift.length && !allowDrift) {
+    die(
+      "TTS inputs differ across clips — the narrator would sound different per scene:\n" +
+        drift.map((d) => `  - ${d}`).join("\n") +
+        "\nMake every input identical except \"text\", or pass --allow-input-drift.",
+    );
+  }
 
   const clips = onlyIds.length
     ? config.clips.filter((clip) => onlyIds.includes(clip.id))
@@ -215,15 +249,17 @@ const generate = async (configPath, onlyIds) => {
 };
 
 const [command, ...rest] = process.argv.slice(2);
-if (command === "schema" && rest[0]) {
-  await showSchema(rest[0]);
-} else if (command === "generate" && rest[0]) {
-  await generate(rest[0], rest.slice(1));
+const flags = rest.filter((arg) => arg.startsWith("--"));
+const args = rest.filter((arg) => !arg.startsWith("--"));
+if (command === "schema" && args[0]) {
+  await showSchema(args[0]);
+} else if (command === "generate" && args[0]) {
+  await generate(args[0], args.slice(1), flags.includes("--allow-input-drift"));
 } else {
   console.error(
     "usage:\n" +
       "  node replicate-audio.mjs schema <owner/model>\n" +
-      "  node replicate-audio.mjs generate <config.json> [clipId ...]",
+      "  node replicate-audio.mjs generate <config.json> [clipId ...] [--allow-input-drift]",
   );
   process.exit(1);
 }

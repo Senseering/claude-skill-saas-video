@@ -146,31 +146,123 @@ export const BrowserFrame: React.FC<{
 };
 ```
 
-## Inside the frames: stylized UI, not screenshots
+## Inside the frames: recreate the app's REAL screens
 
-Recreate a *simplified, idealized* version of the product UI — bolder spacing,
-fewer elements, brand colors. Recipe:
+Scenes must show *this product's* interface, rebuilt in JSX — not generic
+dashboards and not icon metaphors. Someone who uses the app should recognize
+their screen in the video. Recipe:
 
-- Layout: sidebar (list of pill rows) + header + 2–3 stat cards + one chart.
-- Reveal elements one by one with staggered `<Sequence from={...}>` or
-  staggered `interpolate` delays (`const d = index * 4`).
-- Charts: animated SVG. Bars: `height: interpolate(frame, [d, d + 20], [0, v])`.
-  Lines: animate `strokeDashoffset` from path length to 0.
-- Highlight the feature being narrated: a rounded rectangle outline in
-  `theme.accent` that fades/scales in around the relevant UI element, or a
-  gentle zoom of the whole frame (`scale` 1 → 1.06 over the scene).
-- Text inside mockups is decorative — shapes and short labels beat sentences.
+1. Open the real component/page source for the feature (Phase 4 screen spec).
+   Note the layout regions, the actual nav/button/label texts, the chart
+   types, the colors and radii.
+2. Rebuild a simplified version: keep the recognizable structure and the REAL
+   labels, drop the noise (settings rows, footers, edge-case UI). Use bolder
+   spacing and slightly larger type than the real app — it's viewed as video.
+3. Put it inside `BrowserFrame` / `PhoneFrame`, matching how the product is
+   actually used.
+4. Animate one realistic interaction **for the whole time the voice talks**:
+   data arriving, a marker moving, a row being added, a filter applied, a
+   chart drawing in. Use `atWord()` so the interaction lands exactly when the
+   narrator mentions it.
+5. Icons are accents (stat cards, list bullets) — never the main visual of a
+   scene whose feature has a screen. Purely conceptual claims (privacy, speed)
+   may use one strong metaphor visual instead.
+
+Charts: animated SVG — bars via height interpolation, lines via
+`strokeDashoffset` from path length to 0, live feeds by appending dots/rows on
+a frame schedule.
+
+## Word timings: sync visuals to the narration
+
+Shared util — the timing backbone for keyword captions AND scene choreography.
+
+```tsx
+// src/components/word-timings.ts
+export type WordTiming = { word: string; index: number; startSeconds: number };
+
+// Proportional estimate: TTS time is distributed over the narration by
+// character count. Good enough to land events on the right word.
+export const estimateWordTimings = (
+  narration: string,
+  audioDurationInSeconds: number,
+): WordTiming[] => {
+  const words = narration.split(/\s+/).filter(Boolean);
+  const totalChars = words.join("").length || 1;
+  let elapsed = 0;
+  return words.map((word, index) => {
+    const startSeconds = (elapsed / totalChars) * audioDurationInSeconds;
+    elapsed += word.length;
+    return { word, index, startSeconds };
+  });
+};
+
+export const cleanWord = (w: string) =>
+  w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, "");
+
+// Frame at which `word` is spoken (first word if a phrase is passed).
+// THE tool for choreography: make things happen when the narrator says them.
+export const atWord = (
+  narration: string,
+  word: string,
+  audioDurationInSeconds: number,
+  fps: number,
+  occurrence = 1,
+): number => {
+  const target = cleanWord(word.split(/\s+/)[0]);
+  let seen = 0;
+  for (const t of estimateWordTimings(narration, audioDurationInSeconds)) {
+    if (cleanWord(t.word) === target && ++seen === occurrence) {
+      return Math.round(t.startSeconds * fps);
+    }
+  }
+  return 0;
+};
+```
+
+Scene usage — every visual event gets a beat frame from the narration:
+
+```tsx
+const { fps } = useVideoConfig();
+const netIn = atWord(NARRATION, "sensors", audioDurationInSeconds, fps);
+const countIn = atWord(NARRATION, "live", audioDurationInSeconds, fps);
+
+// the counter appears exactly when the narrator says "live":
+opacity: interpolate(frame, [countIn, countIn + 10], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+```
+
+## Keep every scene alive (anti-slideshow)
+
+A scene is on screen for its full narration — entrances that all finish in the
+first second leave a frozen slide for the remaining seconds. Budget motion in
+three layers:
+
+1. **Ambient, always running**: a slow zoom on the whole scene content
+   (`scale: interpolate(frame, [0, sceneDuration], [1, 1.05])`), drifting
+   background, pulsing accents, floating mockups
+   (`translate: \`0px ${Math.sin(frame / 25) * 8}px\``).
+2. **Beats, word-timed**: one visual event per narration beat via `atWord()` —
+   an element enters, a value changes, a highlight moves. Spread beats across
+   the ENTIRE narration, including its last third.
+3. **Living data inside mockups**: counters counting, rows streaming in, chart
+   lines progressing, the cursor moving — schedules that continue until the
+   scene ends.
+
+Rule of thumb: at any moment something should be mid-motion; no visible freeze
+longer than ~1.5 s. The three-stills QA check (20 % / 55 % / 85 %) catches
+violations — if two stills look identical, add a layer.
 
 ## KeywordCaptions (only the most important words, synced to the voice)
 
-Estimates when each keyword is spoken from its character position in the
-narration, then flashes it large on screen. One instance per scene, rendered
-inside that scene's `TransitionSeries.Sequence` (frame 0 = scene start).
+Flashes the scene's keywords large on screen as they are spoken. The keywords
+themselves are chosen in Phase 4 under the **mute test** — this component only
+displays them; it cannot rescue badly chosen ones. One instance per scene,
+rendered inside that scene's `TransitionSeries.Sequence` (frame 0 = scene start).
 
 ```tsx
 import React, { useMemo } from "react";
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { theme } from "../theme";
+import { cleanWord, estimateWordTimings } from "./word-timings";
 
 type Timing = { word: string; startFrame: number; endFrame: number };
 
@@ -185,23 +277,15 @@ export const estimateKeywordTimings = ({
   audioDurationInSeconds: number;
   fps: number;
 }): Timing[] => {
-  const clean = (w: string) => w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, "");
-  const words = narration.split(/\s+/).filter(Boolean);
-  const totalChars = words.join("").length || 1;
-  let elapsed = 0;
-  const startSeconds = words.map((w) => {
-    const start = (elapsed / totalChars) * audioDurationInSeconds;
-    elapsed += w.length;
-    return start;
-  });
+  const words = estimateWordTimings(narration, audioDurationInSeconds);
   const timings: Timing[] = [];
   let searchFrom = 0;
   for (const keyword of keywords) {
-    const first = clean(keyword.split(/\s+/)[0]);
-    const idx = words.findIndex((w, i) => i >= searchFrom && clean(w) === first);
-    if (idx === -1) continue; // keyword must literally appear in the narration
-    searchFrom = idx + 1;
-    timings.push({ word: keyword, startFrame: Math.round(startSeconds[idx] * fps), endFrame: 0 });
+    const first = cleanWord(keyword.split(/\s+/)[0]);
+    const hit = words.find((w) => w.index >= searchFrom && cleanWord(w.word) === first);
+    if (!hit) continue; // keyword must literally appear in the narration
+    searchFrom = hit.index + 1;
+    timings.push({ word: keyword, startFrame: Math.round(hit.startSeconds * fps), endFrame: 0 });
   }
   timings.forEach((t, i) => {
     t.endFrame = timings[i + 1]?.startFrame ?? Math.round(audioDurationInSeconds * fps + fps * 0.5);
@@ -252,9 +336,10 @@ export const KeywordCaptions: React.FC<{
 };
 ```
 
-Rules: keywords must appear verbatim in the narration; 2–4 per scene; keep them
-short ("10× faster", "zero config"). Style presets may restyle (accent color,
-highlighter background, lowercase serif, etc.).
+Rules: keywords must appear verbatim in the narration; 2–4 per scene; each must
+pass the mute test — payoff words like "10× faster", "zero config", "100%
+anonymous", never connective fragments like "right now" or "works with". Style
+presets may restyle (accent color, highlighter background, lowercase serif, etc.).
 
 ## Soundtrack (looping music with fades and ducking)
 
@@ -416,6 +501,63 @@ export const CTAEndCard: React.FC<{ name: string; tagline: string; url: string }
         {url}
       </div>
     </AbsoluteFill>
+  );
+};
+```
+
+## Cursor (animated pointer for UI recreations)
+
+Moves between waypoints and shows a click ripple on arrival — turns a static
+mockup into a demo. Waypoint `atFrame`s must be strictly increasing; derive
+them with `atWord()` so clicks land on the narration.
+
+```tsx
+import React from "react";
+import { Easing, interpolate, useCurrentFrame } from "remotion";
+
+export const Cursor: React.FC<{
+  waypoints: { x: number; y: number; atFrame: number }[]; // atFrame strictly increasing
+}> = ({ waypoints }) => {
+  const frame = useCurrentFrame();
+  if (waypoints.length < 2) return null;
+  const frames = waypoints.map((w) => w.atFrame);
+  const ease = {
+    extrapolateLeft: "clamp" as const,
+    extrapolateRight: "clamp" as const,
+    easing: Easing.inOut(Easing.quad),
+  };
+  const x = interpolate(frame, frames, waypoints.map((w) => w.x), ease);
+  const y = interpolate(frame, frames, waypoints.map((w) => w.y), ease);
+  return (
+    <>
+      {waypoints.slice(1).map((w, i) => {
+        const t = frame - w.atFrame;
+        if (t < 0 || t > 18) return null; // click ripple on arrival
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: w.x - 22,
+              top: w.y - 22,
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              border: "3px solid rgba(255,255,255,0.9)",
+              opacity: 1 - t / 18,
+              scale: String(0.4 + (t / 18) * 0.8),
+            }}
+          />
+        );
+      })}
+      <svg
+        viewBox="0 0 24 24"
+        width={30}
+        style={{ position: "absolute", left: x, top: y, filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.5))" }}
+      >
+        <path d="M5 3l14 8-6 1.5L9.5 19z" fill="#fff" stroke="#000" strokeWidth={1.2} />
+      </svg>
+    </>
   );
 };
 ```

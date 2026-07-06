@@ -165,6 +165,27 @@ Other presentations: `slide({direction: "from-right"})`, `wipe()`, `flip()`,
 `clockWipe()` from `@remotion/transitions/<name>` — pick per style preset.
 `springTiming({ config: { damping: 200 } })` gives organic motion.
 
+## Choreography: fill the whole scene with motion
+
+The most common failure mode is a scene whose entrances all finish in the
+first second — the remaining 3–6 s of narration play over a freeze-frame and
+the video feels like a slideshow. Every scene needs three motion layers
+(details and code in `components.md`):
+
+1. **Ambient**: something always moving — a slow zoom over the full scene
+   (`scale: interpolate(frame, [0, sceneDurationInFrames], [1, 1.05])`),
+   drifting background, pulsing accents, floating mockups.
+2. **Beats**: derive frame numbers from the narration with `atWord()` and
+   schedule one visual event per beat — spread across the ENTIRE narration,
+   including its last third. The thing the narrator mentions appears when
+   they mention it.
+3. **Living data**: counters, streaming rows, progressing charts, a moving
+   cursor inside mockups — schedules that run until the scene ends.
+
+No visible freeze longer than ~1.5 s. Scenes receive
+`audioDurationInSeconds` as a prop (set in `calculateMetadata`) so beats can
+be computed per scene.
+
 ## Fonts
 
 ```tsx
@@ -202,9 +223,11 @@ npx remotion studio
 npx remotion render MarketingVideo out/final.mp4
 ```
 
-Pick QA frames at each scene's midpoint (cumulative scene durations minus
-transition overlaps). First render downloads a headless Chrome — slow once,
-then cached.
+QA stills: three per scene, at ~20 %, ~55 %, and ~85 % of the scene (compute
+frames from cumulative scene durations minus transition overlaps). The three
+stills of a scene must differ visibly — identical stills mean the scene is
+frozen there and needs more choreography. First render downloads a headless
+Chrome — slow once, then cached.
 
 ## Optional: word-accurate caption timing
 

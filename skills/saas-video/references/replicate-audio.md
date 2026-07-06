@@ -70,6 +70,21 @@ characters — don't dump the full table.
   Do **not** embed stage directions in the text field — the model may read
   them aloud.
 
+## One narrator, one delivery (critical)
+
+Every voiceover clip in a video must use an **identical input except `text`**:
+same voice, same language, and — the trap — the exact same style/instructions
+prompt, verbatim. Writing per-scene delivery prompts ("warm and inspiring" for
+one scene, "calm and reassuring" for the next, "memorable closing line" for
+the CTA) makes the same voice sound like a *different narrator* in every scene,
+which reads as a bug in the final video. Pick one delivery that fits the whole
+script and reuse the string.
+
+The `generate` command enforces this: clips sharing a TTS model must have
+identical inputs apart from `text`, or the script exits with an error listing
+the differing fields. Pass `--allow-input-drift` only for intentional
+multi-voice videos (e.g. a two-person dialogue).
+
 ## Writing the Lyria-2 music prompt
 
 - Formula: genre + mood + instrumentation + tempo/energy + **"instrumental"**.
