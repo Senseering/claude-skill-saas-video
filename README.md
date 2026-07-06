@@ -87,8 +87,9 @@ Claude will then:
    to highlight (or steer in a different direction), what viewers do today
    instead, real proof points, your call to action, where the video will
    live, duration, aspect ratio, visual style (5 presets from "Gradient
-   Launch" to "Kinetic Bold"), voiceover yes/no + voice + language, music
-   vibe, and where to put the project.
+   Launch" to "Kinetic Bold"), voiceover yes/no + voice + language (including
+   du/Sie-style register where the language has one), music vibe, and where
+   to put the project.
 4. **Write the script** — narration, on-screen keywords, and a visual concept
    per scene. **Nothing is generated until you approve** (this is the step
    that starts spending Replicate credits).

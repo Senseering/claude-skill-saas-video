@@ -140,6 +140,12 @@ Round 3 — audio:
   the catalog in `references/replicate-audio.md` and describe them, e.g.
   "Sulafat — warm, friendly narrator") and **language** (the TTS speaks 70+
   languages; narration is simply written in the target language).
+- **Address register** (only if the chosen language distinguishes formal and
+  informal address — German du/Sie, French tu/vous, Spanish tú/usted, Dutch
+  je/u…): ask which one. Informal (duzen) is the norm for modern SaaS and
+  consumer marketing — recommend it there; formal (siezen) fits enterprise,
+  government, and regulated industries (banking, legal, health). Skip the
+  question entirely for languages without the distinction (English).
 - **Music**: suggest a vibe matching the chosen style preset (each preset in
   `styles.md` has a music prompt), offer alternatives or no music.
 - **Sound effects**: subtle (2–4 quiet accents at the biggest moments — the
@@ -220,6 +226,10 @@ Then write the narration and scene plan:
   points at the screen overpromises; state the capability instead ("The map
   shows crowds build, zone by zone."). Test: read each line aloud — if it
   could be about any product, rewrite it.
+- **Address register**: if the language has one (Round 3 choice), it applies
+  EVERYWHERE — narration, keyword captions, CTA button text, recreated UI
+  labels, satellite cards. A "du" narration ending on a "Starten Sie" button
+  reads as a bug; check every on-screen string against the chosen register.
 - **TTS-safe sentence shapes**: the TTS renders periods reliably but mangles
   subtle comma prosody — a comma before a trailing clause often collapses
   ("…flow between zones, and where the hotspots build" comes out as two
