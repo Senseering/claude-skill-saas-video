@@ -11,8 +11,8 @@ repo into a polished marketing video in one conversation:
   on Replicate (30 voices, 70+ languages).
 - **AI soundtrack** — [google/lyria-2](https://replicate.com/google/lyria-2)
   on Replicate (48 kHz stereo music from a text prompt); two candidates are
-  generated so you pick the vibe. Plus free sound effects (whooshes on cuts,
-  clicks, dings).
+  generated so you pick the vibe. Plus a few subtle, optional sound effects —
+  felt, not noticed.
 - **Cinematic cuts** — a hero device that flies across scene boundaries,
   zoom-throughs into screens, interstitial word-slams; every scene gets a
   distinct layout.

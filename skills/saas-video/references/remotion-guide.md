@@ -185,8 +185,9 @@ scene a distinct **silhouette** — assign a different one per scene in the plan
 Vary the cuts the same way — one `fade()` everywhere is the transition version
 of a slideshow. Use the preset's transition kit (styles.md) built from the
 cinematic patterns in components.md: a `FloatingHero` device that travels
-across cuts, zoom-throughs into screens, interstitials, slides/wipes with a
-whoosh SFX on every cut. QA check: lay the per-scene stills side by side — no
+across cuts, zoom-throughs into screens, interstitials, slides/wipes — with at
+most a couple of quiet SFX accents across the whole video (restraint rules in
+components.md). QA check: lay the per-scene stills side by side — no
 two scenes should share a layout, and the hero device must never sit in the
 same spot twice.
 

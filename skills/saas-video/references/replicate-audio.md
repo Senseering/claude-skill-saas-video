@@ -119,11 +119,11 @@ Output is ~30 s of 48 kHz stereo WAV. For longer videos, loop it in Remotion
 
 ## Sound effects (free — not Replicate)
 
-Whooshes on cuts, clicks on cursor actions, a ding when the big number lands.
-These come from the free remotion.media library (whoosh.wav, whip.wav,
-mouse-click.wav, switch.wav, ding.wav, page-turn.wav…) — see the `SfxLayer`
-section in `components.md` for the list, download command, and placement
-rules. No schema discovery or API cost involved.
+Sparingly: 2–4 quiet effects in a whole 30 s video (a whoosh on the main cut,
+a soft accent when the hero number lands), volumes 0.12–0.25, whitelist
+sounds only — never the meme sounds in the library, and never one per cut.
+See the `SfxLayer` section in `components.md` for the whitelist, download
+command, and restraint rules. No schema discovery or API cost involved.
 
 ## Config and run
 

@@ -103,6 +103,8 @@ Round 3 — audio:
   languages; narration is simply written in the target language).
 - **Music**: suggest a vibe matching the chosen style preset (each preset in
   `styles.md` has a music prompt), offer alternatives or no music.
+- **Sound effects**: subtle (2–4 quiet accents at the biggest moments — the
+  default) or none.
 
 ## Phase 4 — Script and scene plan (approval gate)
 
@@ -116,9 +118,24 @@ Then write the narration and scene plan:
 
 - **Pacing**: TTS speaks ≈ 2.5 words/second. A 30 s video holds ~70 words total.
   Leave breathing room — under-write rather than over-write.
-- **Structure**: Hook (problem or bold claim) → features (one scene each, one
-  idea per scene) → CTA end card (product name, tagline, URL). For ≥ 30 s
-  videos, consider 1–2 interstitial word-slams between chapters (no narration).
+- **Through-line first (der rote Faden)**: before writing any scene, pick ONE
+  viewer (a specific role), ONE tension the hook opens, and ONE story arc that
+  resolves it — then let the selected features enter as beats of that story,
+  in the order the viewer would actually meet them. Never present features as
+  a list ("it also does X… and Y…"). Arcs that work:
+  - *A day with the product*: one concrete scenario; each feature appears the
+    moment the protagonist needs it;
+  - *Problem → agitate → solve → payoff*: features are the steps that solve
+    the opening problem;
+  - *Before / after*: the same situation without and then with the product.
+  Every scene's narration must connect to the previous one — so / then / now
+  that / because — cause and effect, one continuous thought. **Shuffle test**:
+  if the feature scenes could be reordered without anyone noticing, there is
+  no thread; rewrite. A 30 s video carries at most 3 feature beats — cut
+  features rather than the story.
+- **Structure**: Hook (opens the tension) → story beats (one per scene) → CTA
+  end card that resolves it (product name, tagline, URL). For ≥ 30 s videos,
+  consider 1–2 interstitial word-slams between chapters (no narration).
 - **Copy quality**: the narration must survive being read aloud. Every
   sentence carries ONE concrete idea in plain spoken language — "you" language,
   active voice, specifics and numbers instead of adjectives. The hook names
@@ -148,8 +165,10 @@ Then write the narration and scene plan:
   whole video (see `replicate-audio.md` — varying the style per clip makes the
   narrator sound like a different person between scenes).
 
-Present the plan as a table (scene, narration, keywords, screen + interaction)
-plus the voice, music prompt, style, duration, and format choices. State that
+Present the through-line as one sentence first ("A festival organizer wonders
+if the east entrance is overcrowded — CityPulse answers it live, then proves
+it's private"), then the plan as a table (scene, narration, keywords, screen +
+interaction) plus the voice, music prompt, style, duration, and format choices. State that
 generating audio calls the paid Replicate API. **Get explicit approval before
 continuing.**
 
@@ -200,8 +219,10 @@ preset in `references/styles.md`. Then:
    (`FloatingHero` device traveling across scenes, interstitials,
    zoom-throughs, slides — see components.md), never a plain fade between
    every scene.
-7. Add an `SfxLayer`: a whoosh/whip on every cut, a click per cursor action,
-   at most one accent per scene (e.g. a ding when the big number lands).
+7. If the user opted into sound effects, add an `SfxLayer` with **2–4 quiet
+   effects total** (volume ≈ 0.15–0.25) at the biggest moments only — the main
+   chapter cut, the hero number landing, the final CTA. Never one per cut,
+   never meme sounds; full restraint rules in `components.md`.
 
 ## Phase 7 — Visual QA (required)
 
@@ -252,6 +273,9 @@ wants to preview interactively.
 - Front-loaded animation: entrances that all finish in the first second leave
   the rest of the scene as a freeze-frame. Spread events across the narration
   with `atWord()` and keep ambient motion running.
+- SFX on every cut reads as a TikTok meme edit. 2–4 quiet whitelist effects
+  per video, total — and a feature-list script with no through-line feels like
+  a slideshow no matter how good the scenes are.
 - TTS input drift: every voiceover clip must have identical input except
   `text` (same voice, same style prompt verbatim) — otherwise the narrator
   audibly changes between scenes. The generation script errors on drift.

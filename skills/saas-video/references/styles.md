@@ -26,8 +26,9 @@ Feels like: Stripe/Linear launch video. Dark, premium, vibrant.
 - **Captions**: white uppercase keywords, bottom-center (KeywordCaptions default).
 - **Mockups**: GlassCard features, BrowserFrame (dark) or PhoneFrame hero.
 - **Transition kit**: `FloatingHero` phone traveling across scenes as the
-  through-line; zoom-through into the device screen for the feature reveal;
-  whoosh SFX on every cut; `fade()` reserved for the end card only.
+  visual through-line; zoom-through into the device screen for the feature
+  reveal; one quiet whoosh on the main cut only; `fade()` reserved for the
+  end card.
 - **Music prompt**: `"modern commercial electro-pop, punchy sidechained synth
   bass, bright plucks, tight four-on-the-floor kick at 122 BPM, euphoric
   chorus lift with a big drum fill, glossy radio-ready production, wide
@@ -50,9 +51,9 @@ Feels like: terminal-native, Vercel/GitHub vibe.
   `>` prefix.
 - **Mockups**: BrowserFrame (dark) with terminal-style panels; animated
   monospace command lines; bar/line charts in accent color.
-- **Transition kit**: hard cuts and 8-frame `slide({ direction: "from-right" })`
-  with whip.wav; black interstitial word-slams between chapters; a 2-frame
-  position/invert jitter on cuts for a glitch feel.
+- **Transition kit**: hard cuts and 8-frame `slide({ direction: "from-right" })`;
+  black interstitial word-slams between chapters; a 2-frame position/invert
+  jitter on cuts for a glitch feel; at most one quiet whip on the biggest cut.
 - **Music prompt**: `"cinematic dark electronic, driving 126 BPM techno pulse,
   distorted 808 bass hits, glitchy percussion fills, tense risers releasing
   into a heavy drop, modern tech-trailer energy, punchy loud mix,
@@ -96,8 +97,9 @@ Feels like: hype launch on TikTok. The typography IS the visual.
   (`rotate: "-6deg"`).
 - **Transition kit**: the background color slam IS the cut (hard cut to a new
   full-bleed color on the beat) plus 6-frame `slide()` in alternating
-  directions; whip/whoosh SFX on every slam; interstitial word-slams
-  constantly — this style is basically interstitials with narration.
+  directions; interstitial word-slams constantly — this style is basically
+  interstitials with narration. The music's beat does the punching; keep SFX
+  to 1–2 quiet whips max.
 - **Music prompt**: `"big-room trap hip-hop hybrid, booming 808 bass, hard
   snares at 140 BPM, bold brass stabs, DJ-style cuts and stutter fills, hype
   anthem energy, loud punchy modern mix, instrumental"`.
@@ -118,8 +120,8 @@ Feels like: Duolingo/Headspace warmth.
   slight rotation per word.
 - **Mockups**: PhoneFrame hero front and center; emoji as icon accents are fine.
 - **Transition kit**: `clockWipe()` and bouncy `slide()` with spring timing;
-  pop/switch SFX on card entrances; the `FloatingHero` phone bounces to a new
-  corner each scene with ±10° rotation.
+  a single soft switch pop on the hero card entrance; the `FloatingHero`
+  phone bounces to a new corner each scene with ±10° rotation.
 - **Music prompt**: `"feel-good indie pop, bouncy bassline, bright marimba and
   ukulele accents, claps and finger snaps at 112 BPM, cheerful whistling hook,
   sunny advert energy, crisp modern production, instrumental"`.

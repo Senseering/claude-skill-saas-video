@@ -581,7 +581,7 @@ spot twice.
 A 0.6–0.9 s full-bleed beat between chapters: hard background slam + one huge
 word ("LIVE.", "PRIVATE.", the product name). Insert as a normal
 `TransitionSeries.Sequence` with **no narration audio** and a fixed duration
-(18–27 frames), joined with hard cuts or 6-frame fades plus a whoosh SFX.
+(18–27 frames), joined with hard cuts or 6-frame fades.
 
 ```tsx
 import React from "react";
@@ -627,16 +627,30 @@ starts slightly overscaled and settles:
 - Scene A, last ~12 frames: scene wrapper `scale: 1 → 5` with
   `transformOrigin` at the screen center, `opacity: 1 → 0` over the final 4 frames.
 - Scene B, first ~10 frames: `scale: 1.15 → 1`.
-- Pair with an 8-frame `fade()` transition and a whoosh SFX at the cut.
+- Pair with an 8-frame `fade()` transition; if this is the video's main cut,
+  a quiet whoosh (volume ≈ 0.2) fits here.
 
-### SfxLayer — sound effects
+### SfxLayer — sound effects (use sparingly)
 
-Free hosted SFX (from remotion.media): `whoosh.wav`, `whip.wav`,
-`mouse-click.wav`, `switch.wav`, `ding.wav`, `page-turn.wav`,
-`shutter-modern.wav`. Larger library:
-https://github.com/kapishdima/soundcn/tree/main/assets. For render
-reliability, download the ones you use into `public/sfx/` (e.g.
-`curl -o public/sfx/whoosh.wav https://remotion.media/whoosh.wav`) and
+SFX are seasoning, not percussion — overdone they read as an annoying TikTok
+meme edit. Hard rules:
+
+- **Budget: 2–4 effects TOTAL in a 30 s video.** Not one per cut — pick only
+  the biggest moments: the main chapter cut, the hero number landing, the
+  final CTA.
+- **Whitelist**: `whoosh.wav`, `whip.wav`, `switch.wav`, `page-turn.wav`,
+  `mouse-click.wav` from remotion.media. Everything else in that library is a
+  meme sound (vine-boom, anime-wow, bruh…) — never use them in a marketing
+  video.
+- **Volume 0.12–0.25** — felt, not noticed. Soften a whoosh further with
+  `playbackRate={1.15}`. Place effects in the gaps between narration
+  sentences (cuts naturally fall there), never over a word.
+- Cursor clicks only when the cursor is the scene's focal point, at ≤ 0.2.
+- **Default when unsure: leave it out.** The music carries the energy. Have
+  the user preview and cut anything they consciously notice twice.
+
+For render reliability, download the files into `public/sfx/`
+(`curl -o public/sfx/whoosh.wav https://remotion.media/whoosh.wav`) and
 reference via `staticFile()`.
 
 ```tsx
@@ -651,18 +665,16 @@ export const SfxLayer: React.FC<{
   <>
     {events.map((e, i) => (
       <Sequence key={i} from={e.frame}>
-        <Audio src={staticFile(e.src)} volume={e.volume ?? 0.5} />
+        <Audio src={staticFile(e.src)} volume={e.volume ?? 0.2} />
       </Sequence>
     ))}
   </>
 );
 ```
 
-Standard placement: one whoosh/whip on every cut (at
-`sceneStart(i) - TRANSITION_FRAMES / 2`), a click at each `Cursor` waypoint, a
-ding/switch when the headline number or CTA lands. Volumes 0.35–0.6, under the
-voice. Restraint: one SFX per cut plus at most one accent per scene — more
-sounds cheap.
+Placement: cut-aligned effects go at `sceneStart(i) - TRANSITION_FRAMES / 2`.
+A typical 30 s video: one quiet whoosh on the main chapter cut, one switch/
+page-turn when the hero screen lands, one soft accent on the CTA — done.
 
 ## Cursor (animated pointer for UI recreations)
 
