@@ -167,14 +167,31 @@ export const MarketingVideo: React.FC<VideoProps> = ({ scenes }) => {
 ```
 
 The backdrop lives OUTSIDE the series, so a cut never moves the frame — it
-only swaps foreground elements, which makes even a hard cut feel like one
-continuous space. **Screen-level moves (`slide()`, `wipe()`, `flip()`,
-`clockWipe()`) are banned** — they read as a template slideshow. The only
-`TransitionSeries.Transition` presentations to use are `fade()` (6–8 frames)
-or none at all (adjacent sequences = hard cut). Everything else is element
-choreography: scene N's elements exit staggered in its final ~12 frames
-(inside the audio tail padding, after the voice has finished), then scene
-N+1's elements stagger in — helpers in components.md.
+only swaps foreground elements. **Screen-level moves (`slide()`, `wipe()`,
+`flip()`, `clockWipe()`) are banned** — they read as a template slideshow.
+Join scenes with a **10–15 frame `fade()`** by default: it blends the
+outgoing exit motion into the incoming entrance so no single frame is a
+"snap". A true hard cut is reserved for deliberately punchy styles (Kinetic
+Bold) landing on a music beat. Everything else is element choreography:
+scene N's elements begin exiting ~15 frames *before* the cut (inside the
+audio tail padding, after the voice has finished) and scene N+1's elements
+are still entering ~12 frames *after* it — the fade catches both sides
+mid-motion, so the energy never stops dead. Helpers in components.md.
+
+## Smoothness is non-negotiable
+
+Abrupt animation is the #1 "feels cheap" reaction. Hard rules:
+
+- Every visible change animates over **at least 8–12 eased frames** —
+  `Easing.out(Easing.cubic)` for entrances, `Easing.in(Easing.cubic)` for
+  exits, `Easing.inOut(Easing.cubic)` for movement. Never linear for
+  position, never a 2–3 frame opacity pop.
+- Nothing appears or disappears instantly, nothing teleports. If a value
+  changes (a counter, a highlight, a color), it transitions.
+- Exits and entrances **overlap in time** — outgoing elements are still
+  leaving while incoming ones arrive. Exit-finishes → dead frame → entrance
+  reads as a stutter.
+- Fast styles stay smooth: "quick" means 8–10 eased frames, not 2 raw ones.
 
 ## Every scene must look different (variety)
 

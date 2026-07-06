@@ -26,7 +26,8 @@ Feels like: Stripe/Linear launch video. Dark, premium, vibrant.
 - **Captions**: white uppercase keywords, bottom-center (KeywordCaptions default).
 - **Mockups**: GlassCard features, BrowserFrame (dark) or PhoneFrame hero.
 - **Transition kit**: staggered element swaps on the persistent gradient
-  backdrop (cards fly up and fade, the next scene's content rises in);
+  backdrop, blended by a 12–15 frame fade (cards fly up and fade while the
+  next scene's content rises in — both sides mid-motion at the cut);
   zoom-through into a screen for the feature reveal; optional `FloatingHero`
   (browser or phone) as the visual through-line — only if it changes
   size/role every scene and sits out at least one chapter (mockup budget
@@ -54,11 +55,12 @@ Feels like: terminal-native, Vercel/GitHub vibe.
   `>` prefix.
 - **Mockups**: BrowserFrame (dark) with terminal-style panels; animated
   monospace command lines; bar/line charts in accent color.
-- **Transition kit**: hard cuts on the persistent grid backdrop — panels and
-  terminal lines snap out, the next scene's elements snap in; black
-  chapter words typing on in `JetBrains Mono` over the persistent grid
-  between chapters; a 2-frame position/invert jitter
-  on cuts for a glitch feel; at most one quiet whip on the biggest cut.
+- **Transition kit**: quick eased swaps on the persistent grid backdrop —
+  panels and terminal lines exit in 8–10 eased frames across a 10-frame fade
+  (fast, but never a single-frame snap); chapter words typing on in
+  `JetBrains Mono` over the persistent grid between chapters; optionally a
+  2-frame glitch jitter on the single biggest cut; at most one quiet whip on
+  that same cut.
 - **Music prompt**: `"cinematic dark electronic, driving 126 BPM techno pulse,
   distorted 808 bass hits, glitchy percussion fills, tense risers releasing
   into a heavy drop, modern tech-trailer energy, punchy loud mix,

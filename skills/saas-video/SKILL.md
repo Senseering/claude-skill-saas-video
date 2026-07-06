@@ -218,7 +218,8 @@ Then write the narration and scene plan:
     a chrome-less UI close-up of one component usually beats another phone
     scene. Cuts move **elements, not the screen**: no slide/push/wipe
     presentations. The backdrop persists across the cut while scene N's
-    elements exit staggered and scene N+1's elements enter; zoom-throughs
+    elements exit staggered and scene N+1's elements enter, blended by a
+    10–15 frame fade so no frame is a snap; zoom-throughs
     and chapter words carry the big moments.
 - **One narrator**: exactly one voice AND one delivery-style prompt for the
   whole video (see `replicate-audio.md` — varying the style per clip makes the
@@ -305,6 +306,12 @@ then **look at every image** and check:
   that hasn't fired). Every still must look complete even with no caption
   active. Check the video's very first frame too — it must already be
   mid-motion, not settled and waiting.
+- Cuts are smooth: for every cut, render stills bracketing it (cut − 6,
+  cut − 1, cut + 4) and flip through them — the change between neighbors
+  must be gradual, with elements mid-fade and mid-move on both sides. Any
+  element that pops in at full opacity, vanishes in a frame, or jumps
+  position between neighboring stills is abrupt — ease it and overlap the
+  exit/entrance across the fade.
 - One clear focal point; text inside safe areas and not overflowing; readable
   contrast; keyword captions legible; mockups not clipped.
 - The recreated screens actually resemble the product — compare against the
@@ -356,6 +363,9 @@ wants to preview interactively.
 - SFX on every cut reads as a TikTok meme edit. 2–4 quiet whitelist effects
   per video, total — and a feature-list script with no through-line feels like
   a slideshow no matter how good the scenes are.
+- Abrupt = cheap. Any visible change faster than ~8 frames or without easing
+  reads as a glitch. Exits overlap entrances across a 10–15 frame fade so the
+  motion never stops dead; true hard cuts belong only to Kinetic Bold.
 - TTS input drift: every voiceover clip must have identical input except
   `text` (same voice, same style prompt verbatim) — otherwise the narrator
   audibly changes between scenes. The generation script errors on drift.

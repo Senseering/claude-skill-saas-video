@@ -530,14 +530,17 @@ export const CTAEndCard: React.FC<{
 
 ## Cinematic cuts (transitions with character)
 
-A fade between every scene reads as a slideshow — but so does sliding the
-whole screen around. The rule: **elements move, the screen doesn't.** The
-backdrop persists across every cut (rendered outside the TransitionSeries),
-and a scene change is choreographed at the element level: the outgoing
-scene's elements exit staggered (fly up + fade, scale away) in its final
-~12 frames, hard cut or short fade, the incoming scene's elements stagger in.
-Each style preset names a "transition kit" (styles.md) built from these
-blocks — never from `slide()`/`wipe()`/`flip()` screen moves.
+A bare fade between every scene reads as a slideshow — but so does sliding
+the whole screen around. The rule: **elements move, the screen doesn't.**
+The backdrop persists across every cut (rendered outside the
+TransitionSeries), and a scene change is choreographed at the element level:
+the outgoing scene's elements exit staggered (fly up + fade, scale away)
+starting ~15 frames before the cut, a 10–15 frame `fade()` blends the join,
+and the incoming scene's elements are still staggering in ~12 frames after
+it — both choreographies caught mid-motion, no snap frame anywhere. Hard
+cuts belong only to Kinetic Bold, on a music beat. Each style preset names a
+"transition kit" (styles.md) built from these blocks — never from
+`slide()`/`wipe()`/`flip()` screen moves.
 
 ### FloatingHero — a device that travels across scenes
 
@@ -817,7 +820,7 @@ export const exitStaggered = (
   durationInFrames: number,
   index: number,
   step = 4,
-  duration = 10,
+  duration = 12,
 ) => {
   const start = durationInFrames - duration - index * step;
   return {
