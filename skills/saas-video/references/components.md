@@ -245,7 +245,7 @@ violations — if two stills look identical, add a layer.
 ## KeywordCaptions (only the most important words, synced to the voice)
 
 Flashes the scene's keywords large on screen as they are spoken. The keywords
-themselves are chosen in Phase 4 under the **mute test** — this component only
+themselves are chosen in Phase 4 under the **billboard test** — this component only
 displays them; it cannot rescue badly chosen ones. One instance per scene,
 rendered inside that scene's `TransitionSeries.Sequence` (frame 0 = scene start).
 
@@ -327,10 +327,13 @@ export const KeywordCaptions: React.FC<{
 };
 ```
 
-Rules: keywords must appear verbatim in the narration; 2–4 per scene; each must
-pass the mute test — payoff words like "10× faster", "zero config", "100%
-anonymous", never connective fragments like "right now" or "works with". Style
-presets may restyle (accent color, highlighter background, lowercase serif, etc.).
+Rules: keywords must appear verbatim in the narration; 0–4 per scene; each
+must pass the billboard test *standalone* — 2–4-word claims with a noun like
+"10× faster deploys", "zero config", "100% anonymous". Lone adjectives/verbs
+ripped from a sentence ("PACKED", "FASTER") read as random words to a muted
+viewer, as do connective fragments ("right now", "works with"). Scenes with no
+billboard-worthy phrase get zero keywords. Style presets may restyle (accent
+color, highlighter background, lowercase serif, etc.).
 
 ## Soundtrack (looping music with fades and ducking)
 

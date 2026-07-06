@@ -129,7 +129,13 @@ Then write the narration and scene plan:
     the opening problem;
   - *Before / after*: the same situation without and then with the product.
   Every scene's narration must connect to the previous one — so / then / now
-  that / because — cause and effect, one continuous thought. **Shuffle test**:
+  that / because — cause and effect, one continuous thought. Connectives must
+  be **earned**: "then" only when it really is the next step in the story,
+  "so" only for a real consequence — a "then" gluing two unrelated features
+  is worse than no connective. **Seam test**: read scene N's last sentence
+  and scene N+1's first sentence as one pair; if the join is a non sequitur
+  ("…so you can run it anywhere in public. Then compare weeks…"), rewrite one
+  side. **Shuffle test**:
   if the feature scenes could be reordered without anyone noticing, there is
   no thread; rewrite. A 30 s video carries at most 3 feature beats — cut
   features rather than the story.
@@ -142,8 +148,21 @@ Then write the narration and scene plan:
   the viewer's problem or makes one bold claim in words a person would
   actually say; never open with abstract poetry about the product. Banned
   filler: "turns X into Y", "seamlessly", "empowers", "unlock", "like never
-  before", "a new way to". Test: read each line aloud — if it could be about
-  any product, rewrite it.
+  before", "a new way to". Also banned: **stage-directing the visuals** —
+  "now watch the crowd flow", "see here", "this is the dashboard". The
+  animations are stylized recreations, not a 1:1 demo, so narration that
+  points at the screen overpromises; state the capability instead ("The map
+  shows crowds build, zone by zone."). Test: read each line aloud — if it
+  could be about any product, rewrite it.
+- **TTS-safe sentence shapes**: the TTS renders periods reliably but mangles
+  subtle comma prosody — a comma before a trailing clause often collapses
+  ("…flow between zones, and where the hotspots build" comes out as two
+  rushed sentences with the gap eaten). At most one comma per sentence; never
+  attach a clause with ", and" / ", so" — start a new sentence instead; no
+  subject-less trailing clauses; no triple lists ("compare weeks, spot every
+  peak, and staff the busy days" → two sentences, max two items each). When
+  a pause matters, end the sentence — the period is the only pause you can
+  trust.
 - **Per scene**:
   - id and narration (1–2 spoken sentences, written for the ear);
   - **visual**: which real screen is recreated inside which frame
@@ -151,11 +170,15 @@ Then write the narration and scene plan:
     talks (e.g. "live map view with area polygons; device dots keep appearing
     and the count badge ticks up"). Abstract/icon visuals are a last resort
     for claims with no UI (e.g. privacy) — never for a feature that has a screen;
-  - **on-screen keywords** (2–4, verbatim from the narration): the payoff
-    words — benefits, numbers, the product name. Apply the **mute test**:
-    someone watching with sound off must get the pitch from the keywords
-    alone. Good: "LIVE CROWD COUNT", "100% ANONYMOUS", "ZERO SETUP".
-    Bad: connective fragments like "right now", "how busy", "works with";
+  - **on-screen keywords** (0–4, verbatim from the narration): the payoff
+    words — benefits, numbers, the product name. Apply the **billboard test**
+    to each keyword *on its own*: would it work as a billboard line for this
+    product, without hearing the voice? Prefer 2–4-word claims with a noun:
+    "LIVE CROWD COUNT", "100% ANONYMOUS", "ZERO SETUP". Lone adjectives or
+    verbs ripped from a sentence fail ("PACKED", "FASTER", "BUILDS" — random
+    words to a muted viewer), as do connective fragments ("right now", "how
+    busy", "works with"). A scene with no billboard-worthy phrase gets zero
+    keywords — nothing beats nonsense;
   - **beats**: which narration word triggers which visual event — the
     choreography input for Phase 6;
   - **silhouette + cut**: which layout silhouette the scene uses (variety
@@ -190,7 +213,12 @@ Load `references/replicate-audio.md`, then:
 5. Have the user listen to both music candidates
    (`open public/audio/music-a.wav`) and pick; wire the winner into
    `Soundtrack`.
-6. Download the needed sound effects (free, no API) into `public/sfx/` —
+6. Ask the user to spot-check the narration clips too (`open public/audio/`).
+   If a clip sounds rushed or a pause got eaten, **rephrase the sentence**
+   per the TTS-safe shape rules (usually: split at the comma) and regenerate
+   only that clip id — regenerating the identical text tends to reproduce
+   the artifact.
+7. Download the needed sound effects (free, no API) into `public/sfx/` —
    list and placement rules in `components.md` (SfxLayer).
 
 ## Phase 6 — Build the Remotion project

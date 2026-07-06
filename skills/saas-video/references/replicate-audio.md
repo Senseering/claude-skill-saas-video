@@ -62,8 +62,14 @@ characters — don't dump the full table.
   regenerate a single scene cheaply.
 - Write for the ear: short sentences, contractions, no abbreviations
   ("A P I" vs "API" — spell out anything ambiguous the way it should be spoken).
-- Punctuation shapes prosody: commas and em-dashes create pauses; end every
-  clip with terminal punctuation.
+- **The period is the only pause the TTS renders reliably.** Comma prosody
+  often collapses — "…flow between zones, and where the hotspots build" comes
+  out as two rushed sentences with the gap eaten. At most one comma per
+  sentence; never attach a clause with ", and" / ", so" (start a new sentence
+  instead); no subject-less trailing clauses; no triple lists. End every clip
+  with terminal punctuation.
+- Don't stage-direct the visuals ("now watch…", "see here…") — the animations
+  are stylized recreations, not a screen recording; state the capability.
 - Numbers: write them the way they should be read ("over ten thousand teams").
 - If (and only if) the discovered schema has a dedicated style/instructions
   parameter, use it for delivery hints ("enthusiastic, energetic delivery").
@@ -151,7 +157,13 @@ The script polls until each prediction finishes, downloads files as
 `public/audio/<id>.<ext>`, prints progress to stderr and a JSON summary (with
 durations when `ffprobe` is installed) to stdout. On failure it retries once.
 
-After generation, confirm every expected file exists in `public/audio/` before
+After generation, have the user spot-check the narration clips. If a clip
+sounds rushed or a pause got swallowed, don't regenerate the same text — the
+artifact usually reproduces. Rephrase the sentence into TTS-safe shape
+(typically: split it at the comma into two sentences) and regenerate only
+that clip id.
+
+Also confirm every expected file exists in `public/audio/` before
 building the video.
 
 ## Mixing levels (used by the `Soundtrack` component)
