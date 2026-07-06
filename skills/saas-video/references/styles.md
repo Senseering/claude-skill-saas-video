@@ -110,7 +110,10 @@ Feels like: hype launch on TikTok. The typography IS the visual.
 - **Music prompt**: `"big-room trap hip-hop hybrid, booming 808 bass, hard
   snares at 140 BPM, bold brass stabs, DJ-style cuts and stutter fills, hype
   anthem energy, loud punchy modern mix, instrumental"`.
-- Best for: 9:16 and 1:1, waitlists, consumer hype, ≤ 30 s.
+- Best for: feed launch posts (LinkedIn / X / Product Hunt), 9:16 and 1:1,
+  waitlists, consumer hype, ≤ 30 s — the "text-based motion graphics" format
+  that dominates launch announcements; pair it with a deeper homepage
+  explainer for product education.
 
 ## 5. Soft Playful — friendly consumer apps
 

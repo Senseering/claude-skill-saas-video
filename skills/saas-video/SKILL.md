@@ -83,10 +83,25 @@ Round 1 — content:
 - Which features to highlight? Multi-select from your Phase 2 list, and make
   clear they can steer in a completely different direction with a free-form
   answer instead.
+- **Call to action**: the ONE specific action viewers should take at the end
+  — "Start your free trial", "Book a 10-minute demo", "Join the waitlist" —
+  plus its URL. Vague endings ("Learn more") measurably underperform; get
+  the real next step.
 
 Round 2 — format (load `references/styles.md` first):
-- **Duration**: 15 s (one punchy message), 30 s (hook + 2 features + CTA,
-  recommended default), 45–60 s (hook + 3–4 features + CTA), or custom.
+- **Placement first**: where will the video live? This determines everything
+  else (the format data from analyses of 500+ SaaS launch videos):
+  - *Homepage hero / YouTube*: full animated explainer, 16:9, **60–75 s is
+    the sweet spot — past 90 s viewers bail**;
+  - *Feed launch post (LinkedIn / X / Product Hunt)*: fast text-driven format
+    (Kinetic Bold territory), 15–30 s, 1:1 or 9:16, built to stop a scroll —
+    works best paired with a deeper explainer elsewhere;
+  - *Landing-page section / in-app*: single-feature spot, 15–30 s, 16:9.
+  Derive your duration/aspect/style *recommendations* from this answer
+  instead of asking all three cold.
+- **Duration**: 15 s (one punchy message), 30 s (hook + 2 beats + CTA, feed
+  default), 60–75 s (homepage explainer: hook + 3–4 beats + CTA), or custom
+  — warn on anything over 90 s.
 - **Aspect ratio**: 16:9 (1920×1080, YouTube/website), 9:16 (1080×1920,
   Reels/TikTok/Shorts), 1:1 (1080×1080, feeds). One primary format per run;
   other formats can be produced afterwards as a variant pass.
@@ -119,8 +134,11 @@ Then write the narration and scene plan:
 - **Pacing**: TTS speaks ≈ 2.5 words/second. A 30 s video holds ~70 words total.
   Leave breathing room — under-write rather than over-write.
 - **Through-line first (der rote Faden)**: before writing any scene, pick ONE
-  viewer (a specific role), ONE tension the hook opens, and ONE story arc that
-  resolves it — then let the selected features enter as beats of that story,
+  viewer (a specific role), ONE core use case (the one that kills the biggest
+  pain — the product does fifty things; this video nails one, the rest
+  deserve their own videos later), ONE tension the hook opens, and ONE story
+  arc that resolves it — then let the selected features enter as beats of
+  that story,
   in the order the viewer would actually meet them. Never present features as
   a list ("it also does X… and Y…"). Arcs that work:
   - *A day with the product*: one concrete scenario; each feature appears the
@@ -145,8 +163,12 @@ Then write the narration and scene plan:
   if the feature scenes could be reordered without anyone noticing, there is
   no thread; rewrite. A 30 s video carries at most 3 feature beats — cut
   features rather than the story.
-- **Structure**: Hook (opens the tension) → story beats (one per scene) → CTA
-  end card that resolves it (product name, tagline, URL). For ≥ 30 s videos,
+- **Structure**: Hook (opens the tension — **never the logo**: viewers don't
+  care about the brand yet, so the product name and logo first appear after
+  the tension exists, usually not before the solution beat) → story beats
+  (one per scene) → CTA end card that resolves it with the **specific action
+  from the interview** ("Start your free trial", "Book a 10-minute demo") —
+  never "Learn more". For ≥ 30 s videos,
   consider 1–2 chapter-word beats between chapters (no narration): one word
   given a quiet moment on the persistent backdrop — not a hard slam.
 - **Copy quality**: the narration must survive being read aloud. Every
@@ -205,9 +227,9 @@ Then write the narration and scene plan:
 Present the through-line as one sentence first ("A festival organizer wonders
 if the east entrance is overcrowded — CityPulse answers it live, then proves
 it's private"), then the plan as a table (scene, narration, keywords, screen +
-interaction) plus the voice, music prompt, style, duration, and format choices. State that
-generating audio calls the paid Replicate API. **Get explicit approval before
-continuing.**
+interaction) plus the voice, music prompt, style, duration, placement, and
+CTA choices. State that generating audio calls the paid Replicate API.
+**Get explicit approval before continuing.**
 
 ## Phase 5 — Generate audio
 

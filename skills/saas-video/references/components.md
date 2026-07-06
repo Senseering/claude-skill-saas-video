@@ -484,7 +484,12 @@ import React from "react";
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 import { theme } from "../theme";
 
-export const CTAEndCard: React.FC<{ name: string; tagline: string; url: string }> = ({ name, tagline, url }) => {
+export const CTAEndCard: React.FC<{
+  name: string;
+  tagline: string;
+  cta: string; // the specific action: "Start your free trial" — never "Learn more"
+  url: string;
+}> = ({ name, tagline, cta, url }) => {
   const frame = useCurrentFrame();
   const enter = (from: number) => ({
     opacity: interpolate(frame, [from, from + 12], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp" }),
@@ -513,6 +518,9 @@ export const CTAEndCard: React.FC<{ name: string; tagline: string; url: string }
           ...enter(16),
         }}
       >
+        {cta}
+      </div>
+      <div style={{ fontFamily: theme.fontBody, fontSize: 30, color: theme.textDim, ...enter(24) }}>
         {url}
       </div>
     </AbsoluteFill>
