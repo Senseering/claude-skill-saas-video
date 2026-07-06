@@ -147,7 +147,8 @@ Then write the narration and scene plan:
   features rather than the story.
 - **Structure**: Hook (opens the tension) → story beats (one per scene) → CTA
   end card that resolves it (product name, tagline, URL). For ≥ 30 s videos,
-  consider 1–2 interstitial word-slams between chapters (no narration).
+  consider 1–2 chapter-word beats between chapters (no narration): one word
+  given a quiet moment on the persistent backdrop — not a hard slam.
 - **Copy quality**: the narration must survive being read aloud. Every
   sentence carries ONE concrete idea in plain spoken language — "you" language,
   active voice, specifics and numbers instead of adjectives. The hook names
@@ -196,7 +197,7 @@ Then write the narration and scene plan:
     scene. Cuts move **elements, not the screen**: no slide/push/wipe
     presentations. The backdrop persists across the cut while scene N's
     elements exit staggered and scene N+1's elements enter; zoom-throughs
-    and interstitials carry the big moments.
+    and chapter words carry the big moments.
 - **One narrator**: exactly one voice AND one delivery-style prompt for the
   whole video (see `replicate-audio.md` — varying the style per clip makes the
   narrator sound like a different person between scenes).
@@ -247,7 +248,9 @@ preset in `references/styles.md`. Then:
    captions, soundtrack, backgrounds) and adapt them to the theme.
 4. Build one component per scene, recreating the real screen from its Phase 4
    screen spec inside a device frame, with the distinct layout silhouette the
-   plan assigned. Scene lengths are **driven by the actual TTS audio
+   plan assigned. Captions are overlays — never reserve blank space for them;
+   every layout must look complete and balanced with zero captions visible.
+   Scene lengths are **driven by the actual TTS audio
    durations** via `calculateMetadata` (pattern in the guide) — never
    hardcode scene durations.
 5. Choreograph every scene across its FULL duration (choreography section of
@@ -259,7 +262,7 @@ preset in `references/styles.md`. Then:
    the looping, ducked soundtrack. Render the backdrop ONCE, outside the
    series, and give scenes transparent backgrounds — cuts then never move
    the frame, only swap foreground elements. Cut with the preset's kit
-   (element exits/entrances, `FloatingHero`, interstitials, zoom-throughs —
+   (element exits/entrances, `FloatingHero`, chapter words, zoom-throughs —
    see components.md): **elements move, the screen never slides**, and never
    a plain fade between every scene.
 7. If the user opted into sound effects, add an `SfxLayer` with **2–4 quiet
@@ -275,6 +278,11 @@ then **look at every image** and check:
 
 - The three stills of each scene differ visibly. If two look identical, the
   scene is frozen there — add choreography (this is the slideshow check).
+- No dead zones: no region of the frame sits empty waiting for a later
+  element (the classic failure: a blank bottom third reserved for a caption
+  that hasn't fired). Every still must look complete even with no caption
+  active. Check the video's very first frame too — it must already be
+  mid-motion, not settled and waiting.
 - One clear focal point; text inside safe areas and not overflowing; readable
   contrast; keyword captions legible; mockups not clipped.
 - The recreated screens actually resemble the product — compare against the

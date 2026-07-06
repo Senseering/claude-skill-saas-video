@@ -255,6 +255,11 @@ Rule of thumb: at any moment something should be mid-motion; no visible freeze
 longer than ~1.5 s. The three-stills QA check (20 % / 55 % / 85 %) catches
 violations — if two stills look identical, add a layer.
 
+The FIRST scene carries the heaviest burden — viewers decide in two seconds.
+Its frame 0 must already be mid-motion: the backdrop drifting, the hero
+element rising into place, a counter mid-tick. Never open the video on a
+settled frame, and never on a half-empty one waiting for its first beat.
+
 ## KeywordCaptions (only the most important words, synced to the voice)
 
 Flashes the scene's keywords large on screen as they are spoken. The keywords
@@ -340,7 +345,10 @@ export const KeywordCaptions: React.FC<{
 };
 ```
 
-Rules: keywords must appear verbatim in the narration; 0–4 per scene; each
+Rules: the component is an overlay (`AbsoluteFill`) — scenes must NOT reserve
+an empty bottom strip for it; design the layout as if captions didn't exist
+and let them float over it with their own contrast. Keywords must appear
+verbatim in the narration; 0–4 per scene; each
 must pass the billboard test *standalone* — 2–4-word claims with a noun like
 "10× faster deploys", "zero config", "100% anonymous". Lone adjectives/verbs
 ripped from a sentence ("PACKED", "FASTER") read as random words to a muted
@@ -602,50 +610,70 @@ most scenes, the star in one or two, and absent for at least one chapter. If
 the product isn't mobile-first, make the hero a browser instead, or skip the
 pattern entirely and lean on UI close-ups.
 
-### Interstitial — a full scene as a transition
+### ChapterWord — a calm emphasis beat between chapters
 
-A 0.8–1.2 s full-bleed beat between chapters: hard background slam + one huge
-word ("LIVE.", "PRIVATE.", the product name). Insert as a normal
-`TransitionSeries.Sequence` with **no narration audio** and a fixed duration
-(24–36 frames), joined with hard cuts or 6-frame fades.
+(The earlier full-bleed "interstitial slam" is retired — a background slam
+with hard cuts on both sides feels abrupt.) A chapter word is one big word
+given a quiet moment ON the persistent backdrop: no background change, no
+takeover. The outgoing scene's elements finish exiting, the word rises in
+over a soft glow, holds, and fades away as the next scene's elements arrive —
+continuous with everything around it.
 
-Readability rules — an interstitial nobody can read is worse than no
-interstitial:
-
-- The entrance settles within ~6 frames; after that the word **holds still
-  and fully readable for at least 15–20 frames** before the next cut. All
-  motion budget goes to the entrance, none to the hold.
-- Join with hard cuts (or a background color slam) — the word itself does the
-  entering; the screen never slides in or out of it.
-- One word. Two at most.
+- Insert as a `TransitionSeries.Sequence` with **no narration audio**,
+  transparent background, fixed duration 36–48 frames (1.2–1.6 s).
+- Entrance ≈ 12 frames (ease-out rise — never a slam); **holds still ≥ 20
+  frames**; exit fade ≈ 8 frames. Motion lives at the edges, none during the
+  hold.
+- The backdrop keeps running underneath; the soft radial glow ties the word
+  to the video's space. If more emphasis is needed, drift the backdrop's
+  gradient toward the word during the beat — don't swap the background.
+- One word. Two at most. 1–2 chapter words per video.
+- Exception: Kinetic Bold keeps genuinely hard slams — there the punch IS
+  the style the user chose.
 
 ```tsx
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 import { theme } from "../theme";
 
-export const Interstitial: React.FC<{ word: string; bg: string; color: string }> = ({
-  word,
-  bg,
-  color,
-}) => {
+export const ChapterWord: React.FC<{
+  word: string;
+  durationInFrames: number; // the sequence's fixed length
+  accent?: string;          // hex color for the glow
+}> = ({ word, durationInFrames, accent = theme.accent }) => {
   const frame = useCurrentFrame();
+  const clamp = {
+    extrapolateLeft: "clamp" as const,
+    extrapolateRight: "clamp" as const,
+  };
+  const visible =
+    interpolate(frame, [0, 10], [0, 1], clamp) *
+    interpolate(frame, [durationInFrames - 8, durationInFrames - 2], [1, 0], clamp);
   return (
-    <AbsoluteFill style={{ background: bg, justifyContent: "center", alignItems: "center" }}>
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+      <div
+        style={{
+          position: "absolute",
+          width: 1100,
+          height: 1100,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${accent}33 0%, transparent 65%)`,
+          filter: "blur(50px)",
+          opacity: visible,
+        }}
+      />
       <div
         style={{
           fontFamily: theme.fontDisplay,
-          fontSize: 190,
+          fontSize: 170,
           fontWeight: 900,
-          color,
+          color: theme.text,
           letterSpacing: "-0.02em",
-          opacity: interpolate(frame, [0, 3], [0, 1], { extrapolateRight: "clamp" }),
-          scale: String(
-            interpolate(frame, [0, 6], [1.35, 1], {
-              extrapolateRight: "clamp",
-              easing: Easing.out(Easing.cubic),
-            }),
-          ),
+          opacity: visible,
+          translate: `0px ${interpolate(frame, [0, 12], [36, 0], {
+            ...clamp,
+            easing: Easing.out(Easing.cubic),
+          })}px`,
         }}
       >
         {word}

@@ -56,7 +56,8 @@ Feels like: terminal-native, Vercel/GitHub vibe.
   monospace command lines; bar/line charts in accent color.
 - **Transition kit**: hard cuts on the persistent grid backdrop — panels and
   terminal lines snap out, the next scene's elements snap in; black
-  interstitial word-slams between chapters; a 2-frame position/invert jitter
+  chapter words typing on in `JetBrains Mono` over the persistent grid
+  between chapters; a 2-frame position/invert jitter
   on cuts for a glitch feel; at most one quiet whip on the biggest cut.
 - **Music prompt**: `"cinematic dark electronic, driving 126 BPM techno pulse,
   distorted 808 bass hits, glitchy percussion fills, tense risers releasing
@@ -102,9 +103,10 @@ Feels like: hype launch on TikTok. The typography IS the visual.
   (`rotate: "-6deg"`).
 - **Transition kit**: the background color slam IS the cut (hard cut to a new
   full-bleed color on the beat) — the words themselves slam in and out, the
-  screen never slides; interstitial word-slams constantly (each held readable
-  ≥ 15 frames) — this style is basically interstitials with narration. The
-  music's beat does the punching; keep SFX to 1–2 quiet whips max.
+  screen never slides; hard word-slams constantly (each held readable
+  ≥ 15 frames) — this style is basically word beats with narration, and the
+  one style where genuinely hard slams are right. The music's beat does the
+  punching; keep SFX to 1–2 quiet whips max.
 - **Music prompt**: `"big-room trap hip-hop hybrid, booming 808 bass, hard
   snares at 140 BPM, bold brass stabs, DJ-style cuts and stutter fills, hype
   anthem energy, loud punchy modern mix, instrumental"`.

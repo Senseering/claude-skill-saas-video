@@ -99,7 +99,7 @@ const calculateMetadata: CalculateMetadataFunction<VideoProps> = async ({ props 
     audioDurationInSeconds: durations[i] ?? 0,
     durationInFrames: durations[i]
       ? Math.round((durations[i] + SCENE_TAIL_SECONDS) * FPS)
-      : (scene.durationInFrames ?? Math.round(0.8 * FPS)), // interstitials: fixed length
+      : (scene.durationInFrames ?? Math.round(1.4 * FPS)), // chapter words: fixed length
   }));
   const total =
     timedScenes.reduce((sum, s) => sum + s.durationInFrames, 0) -
@@ -188,7 +188,8 @@ scene a distinct **silhouette** — assign a different one per scene in the plan
 4. UI full-frame: browser mockup at ~90 % width, camera slowly zooming in
 5. UI close-up: ONE real component (counter, chart, notification card)
    rebuilt huge with no device chrome, doing its real behavior
-6. Interstitial word-slam (0.8–1.2 s, no narration)
+6. Chapter word (1.2–1.6 s, no narration) — one word rising onto the
+   persistent backdrop; no full-bleed slam
 7. End card
 
 **Mockup budget**: device frames star in at most half the scenes — the phone
@@ -201,11 +202,11 @@ of a slideshow. But the variety comes from **element choreography, never from
 moving the screen**: the backdrop persists across every cut, and what changes
 per cut is *how the elements leave and arrive* — fly up and fade, scale down
 into a dot, the chart collapsing while the next scene's counter pops in, a
-zoom-through into a screen, an interstitial word-slam on a hard cut. Two
+zoom-through into a screen, a chapter word given its own quiet beat. Two
 adjacent cuts shouldn't use the same exit/enter move. Use the preset's transition kit (styles.md) built from the
 cinematic patterns in components.md: staggered element exits/entrances, a
 `FloatingHero` device that travels across cuts, zoom-throughs into screens,
-interstitials — with at most a couple of quiet SFX accents across the whole
+chapter words — with at most a couple of quiet SFX accents across the whole
 video (restraint rules in components.md). QA check: lay the per-scene stills
 side by side — no
 two scenes should share a layout, and the hero device must never sit in the
@@ -252,6 +253,16 @@ Call at module top level (e.g. in `theme.ts`); rendering blocks until loaded.
 - Lay out readable content with flex/grid + `gap` in reserved slots; use
   absolute positioning only for backgrounds and decoration. Animate elements
   *into* their slot (opacity/transform), never into space another element owns.
+- **Captions are overlays, not layout slots.** Never reserve empty space for
+  the keyword captions: most frames have no caption active, so a reserved
+  strip is a dead gap (the classic failure: a static hook scene with a blank
+  bottom third waiting for its first keyword). Compose the scene to fill the
+  frame as if captions didn't exist; the caption floats over the lower part
+  with its own contrast (text shadow / soft backing glow) when it fires.
+- **No dead zones.** A region that sits empty waiting for a future element is
+  a layout bug. If a third of the frame is blank in the 20 % QA still,
+  rebalance the composition (bigger focal element, recentered stack) instead
+  of waiting for something to fill it.
 - Let time solve crowding: reveal things one after another instead of side by side.
 - Strong text/background contrast; add a backing shape or dim the background
   when in doubt.
