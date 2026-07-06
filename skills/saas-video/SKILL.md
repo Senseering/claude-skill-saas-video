@@ -193,8 +193,10 @@ Then write the narration and scene plan:
     into it — no two adjacent scenes share either. Device frames may star in
     at most half the scenes, the phone specifically in at most two per video;
     a chrome-less UI close-up of one component usually beats another phone
-    scene. Cuts keep ONE travel direction across the whole video — never
-    ping-pong (slide right into a word-slam, slide back left out of it).
+    scene. Cuts move **elements, not the screen**: no slide/push/wipe
+    presentations. The backdrop persists across the cut while scene N's
+    elements exit staggered and scene N+1's elements enter; zoom-throughs
+    and interstitials carry the big moments.
 - **One narrator**: exactly one voice AND one delivery-style prompt for the
   whole video (see `replicate-audio.md` — varying the style per clip makes the
   narrator sound like a different person between scenes).
@@ -254,10 +256,12 @@ preset in `references/styles.md`. Then:
    frame freeze for more than ~1.5 s. Front-loading all animation into the
    first second produces a slideshow — the #1 quality killer.
 6. Wire scenes into a `TransitionSeries` with per-scene voiceover audio and
-   the looping, ducked soundtrack — cutting with the preset's transition kit
-   (`FloatingHero` device traveling across scenes, interstitials,
-   zoom-throughs, slides — see components.md), never a plain fade between
-   every scene.
+   the looping, ducked soundtrack. Render the backdrop ONCE, outside the
+   series, and give scenes transparent backgrounds — cuts then never move
+   the frame, only swap foreground elements. Cut with the preset's kit
+   (element exits/entrances, `FloatingHero`, interstitials, zoom-throughs —
+   see components.md): **elements move, the screen never slides**, and never
+   a plain fade between every scene.
 7. If the user opted into sound effects, add an `SfxLayer` with **2–4 quiet
    effects total** (volume ≈ 0.15–0.25) at the biggest moments only — the main
    chapter cut, the hero number landing, the final CTA. Never one per cut,
@@ -275,6 +279,13 @@ then **look at every image** and check:
   contrast; keyword captions legible; mockups not clipped.
 - The recreated screens actually resemble the product — compare against the
   real component code, not memory.
+- The UI inside mockups holds up **as UI**: everything aligned to a grid,
+  nothing overlapping or clipped, charts fully drawn in their settled state,
+  numbers and labels internally consistent and plausible for the product
+  (the count matches the chart, the labels match the domain). For UI-heavy
+  scenes render the ~85 % still at `--scale=1` — half-size hides broken UI.
+  If a screen reads as element soup, simplify: fewer, bigger, aligned
+  elements.
 - Variety: lay one still per scene side by side — no two scenes share the same
   layout silhouette, and the hero device never sits in the same spot twice.
 

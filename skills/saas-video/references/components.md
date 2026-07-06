@@ -514,8 +514,14 @@ export const CTAEndCard: React.FC<{ name: string; tagline: string; url: string }
 
 ## Cinematic cuts (transitions with character)
 
-A fade between every scene reads as a slideshow. Each style preset names a
-"transition kit" (styles.md); these are the building blocks.
+A fade between every scene reads as a slideshow — but so does sliding the
+whole screen around. The rule: **elements move, the screen doesn't.** The
+backdrop persists across every cut (rendered outside the TransitionSeries),
+and a scene change is choreographed at the element level: the outgoing
+scene's elements exit staggered (fly up + fade, scale away) in its final
+~12 frames, hard cut or short fade, the incoming scene's elements stagger in.
+Each style preset names a "transition kit" (styles.md) built from these
+blocks — never from `slide()`/`wipe()`/`flip()` screen moves.
 
 ### FloatingHero — a device that travels across scenes
 
@@ -609,10 +615,8 @@ interstitial:
 - The entrance settles within ~6 frames; after that the word **holds still
   and fully readable for at least 15–20 frames** before the next cut. All
   motion budget goes to the entrance, none to the hold.
-- If slide transitions join it, both cuts travel in the SAME screen direction
-  (in from-right, out from-right → the video keeps moving left). Sliding one
-  way into the word and back the other way out whips the viewer's eye around
-  and kills the read.
+- Join with hard cuts (or a background color slam) — the word itself does the
+  entering; the screen never slides in or out of it.
 - One word. Two at most.
 
 ```tsx
@@ -764,6 +768,50 @@ export const Cursor: React.FC<{
   );
 };
 ```
+
+## Exit stagger helper (element-level scene changes)
+
+The mirror of the entrance stagger: elements leave in the scene's final
+frames, timed into the audio tail padding (the voice has already finished).
+`durationInFrames` is the scene's own duration from its props.
+
+```tsx
+export const exitStaggered = (
+  frame: number,
+  durationInFrames: number,
+  index: number,
+  step = 4,
+  duration = 10,
+) => {
+  const start = durationInFrames - duration - index * step;
+  return {
+    opacity: interpolate(frame, [start, start + duration], [1, 0], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    }),
+    translate: `0px ${interpolate(frame, [start, start + duration], [0, -26], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.in(Easing.cubic),
+    })}px`,
+  };
+};
+```
+
+Compose enter + exit on the same element by multiplying opacities and summing
+the translate offsets:
+
+```tsx
+const enter = staggered(frame, i);
+const exit = exitStaggered(frame, scene.durationInFrames, count - 1 - i); // last in, first out
+const style = {
+  opacity: enter.opacity * exit.opacity,
+  translate: `0px ${enterY(frame, i) + exitY(frame, scene.durationInFrames, count - 1 - i)}px`,
+};
+```
+
+Vary the exit move per cut (up + fade, scale to 0.9 + fade, drop + fade) —
+two adjacent cuts shouldn't leave the same way.
 
 ## Entrance stagger helper
 

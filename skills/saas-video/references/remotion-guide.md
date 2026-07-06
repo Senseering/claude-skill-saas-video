@@ -158,6 +158,7 @@ export const MarketingVideo: React.FC<VideoProps> = ({ scenes }) => {
 
   return (
     <AbsoluteFill>
+      <Backdrop /> {/* rendered ONCE — scenes keep transparent backgrounds */}
       <TransitionSeries>{items}</TransitionSeries>
       <Soundtrack file="audio/music.wav" />
     </AbsoluteFill>
@@ -165,9 +166,15 @@ export const MarketingVideo: React.FC<VideoProps> = ({ scenes }) => {
 };
 ```
 
-Other presentations: `slide({direction: "from-right"})`, `wipe()`, `flip()`,
-`clockWipe()` from `@remotion/transitions/<name>` — pick per style preset.
-`springTiming({ config: { damping: 200 } })` gives organic motion.
+The backdrop lives OUTSIDE the series, so a cut never moves the frame — it
+only swaps foreground elements, which makes even a hard cut feel like one
+continuous space. **Screen-level moves (`slide()`, `wipe()`, `flip()`,
+`clockWipe()`) are banned** — they read as a template slideshow. The only
+`TransitionSeries.Transition` presentations to use are `fade()` (6–8 frames)
+or none at all (adjacent sequences = hard cut). Everything else is element
+choreography: scene N's elements exit staggered in its final ~12 frames
+(inside the audio tail padding, after the voice has finished), then scene
+N+1's elements stagger in — helpers in components.md.
 
 ## Every scene must look different (variety)
 
@@ -190,15 +197,17 @@ fastest way to make the video boring; a UI close-up carries a feature just as
 well without the repetition.
 
 Vary the cuts the same way — one `fade()` everywhere is the transition version
-of a slideshow. But vary the *type*, not the *direction*: pick ONE screen
-direction for the whole video (e.g. everything pushes left = "forward") and
-keep every slide/push/hero-flight on it. A cut that slides right into an
-interstitial and back left out of it whips the viewer's eye around and
-nothing gets read. Use the preset's transition kit (styles.md) built from the
-cinematic patterns in components.md: a `FloatingHero` device that travels
-across cuts, zoom-throughs into screens, interstitials, slides/wipes — with at
-most a couple of quiet SFX accents across the whole video (restraint rules in
-components.md). QA check: lay the per-scene stills side by side — no
+of a slideshow. But the variety comes from **element choreography, never from
+moving the screen**: the backdrop persists across every cut, and what changes
+per cut is *how the elements leave and arrive* — fly up and fade, scale down
+into a dot, the chart collapsing while the next scene's counter pops in, a
+zoom-through into a screen, an interstitial word-slam on a hard cut. Two
+adjacent cuts shouldn't use the same exit/enter move. Use the preset's transition kit (styles.md) built from the
+cinematic patterns in components.md: staggered element exits/entrances, a
+`FloatingHero` device that travels across cuts, zoom-throughs into screens,
+interstitials — with at most a couple of quiet SFX accents across the whole
+video (restraint rules in components.md). QA check: lay the per-scene stills
+side by side — no
 two scenes should share a layout, and the hero device must never sit in the
 same spot twice.
 
