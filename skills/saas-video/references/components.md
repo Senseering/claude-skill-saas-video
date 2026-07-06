@@ -159,9 +159,79 @@ their screen in the video. Recipe:
    scene whose feature has a screen. Purely conceptual claims (privacy, speed)
    may use one strong metaphor visual instead.
 
+**World fidelity**: the content canvas inside the chrome must be believable
+at video distance — one abstract canvas (straight grid lines + rectangles as
+a "map", a chart with no axis, an editor full of lorem) poisons every scene
+that contains it, however faithful the surrounding chrome. A believable map:
+a curved river, an irregular street network with road hierarchy (dark casing
+strokes under brighter core strokes), city blocks with subtle rooftop
+texture, parks, and 5–8 REAL street/place names from the deployment city as
+dim labels. Use the real city, real device IDs, real event names from
+Phase 2 — specificity sells authenticity. Build the canvas ONCE as a
+reusable component; one believable canvas lifts every scene that shows it.
+
 Charts: animated SVG — bars via height interpolation, lines via
 `strokeDashoffset` from path length to 0, live feeds by appending dots/rows on
 a frame schedule.
+
+Transforming text (a MAC address masking to "7A ·· ·· ·· 1C", a value
+swapping) needs a fixed-width slot: two absolutely-positioned spans
+crossfading inside a `position: relative` container sized for the longer
+string — otherwise the row jumps width mid-swap.
+
+## Canvas overlays: one shared coordinate space
+
+Overlays that must align with a canvas (pins on streets, dots on charts,
+routes, coverage polygons) render in the SAME coordinate space as the
+canvas: a second SVG with the **identical `viewBox` and
+`preserveAspectRatio`**, stacked on top. Never position them with %-based
+HTML in a parallel space — a `slice`-cropped container with a different
+aspect ratio silently misaligns every pin.
+
+Export the canvas geometry from the canvas component and make every scene
+consume it — routes follow actual streets, sensors sit on actual
+intersections:
+
+```tsx
+// exported by the canvas component (viewBox units)
+export const STREETS: [number, number][][] = [/* polylines */];
+export const INTERSECTIONS: [number, number][] = [/* sensor positions */];
+
+// point + direction at t ∈ [0, 1] along a polyline — drives traffic
+// particles, route draws, and arrowhead angles
+export const pointAlong = (line: [number, number][], t: number) => {
+  const segs = [];
+  let total = 0;
+  for (let i = 0; i < line.length - 1; i++) {
+    const len = Math.hypot(
+      line[i + 1][0] - line[i][0],
+      line[i + 1][1] - line[i][1],
+    );
+    segs.push({ a: line[i], b: line[i + 1], len });
+    total += len;
+  }
+  let d = Math.max(0, Math.min(1, t)) * total;
+  for (const s of segs) {
+    if (d <= s.len) {
+      const u = s.len === 0 ? 0 : d / s.len;
+      return {
+        x: s.a[0] + (s.b[0] - s.a[0]) * u,
+        y: s.a[1] + (s.b[1] - s.a[1]) * u,
+        angle: (Math.atan2(s.b[1] - s.a[1], s.b[0] - s.a[0]) * 180) / Math.PI,
+      };
+    }
+    d -= s.len;
+  }
+  const s = segs[segs.length - 1];
+  return {
+    x: s.b[0],
+    y: s.b[1],
+    angle: (Math.atan2(s.b[1] - s.a[1], s.b[0] - s.a[0]) * 180) / Math.PI,
+  };
+};
+```
+
+Traffic dots are `pointAlong(street, (frame / n + offset) % 1)`.
 
 ## UI close-up — one component, no chrome
 
@@ -243,7 +313,11 @@ three layers:
 1. **Ambient, always running**: a slow zoom on the whole scene content
    (`scale: interpolate(frame, [0, sceneDuration], [1, 1.05])`), drifting
    background, pulsing accents, floating mockups
-   (`translate: \`0px ${Math.sin(frame / 25) * 8}px\``).
+   (`translate: \`0px ${Math.sin(frame / 25) * 8}px\``) — and life INSIDE
+   the world, not just on the camera: traffic dots along the canvas's roads,
+   pedestrian dots on lanes, water shimmer, wobbling signal bars, all
+   running from frame 0. This cures "scene opens dead while the entrances
+   play" without front-loading the choreography.
 2. **Beats, word-timed**: one visual event per narration beat via `atWord()` —
    an element enters, a value changes, a highlight moves. Spread beats across
    the ENTIRE narration, including its last third.
@@ -632,9 +706,10 @@ continuous with everything around it.
 
 - Insert as a `TransitionSeries.Sequence` with **no narration audio**,
   transparent background, fixed duration 36–48 frames (1.2–1.6 s).
-- Entrance ≈ 12 frames (ease-out rise — never a slam); **holds still ≥ 20
-  frames**; exit fade ≈ 8 frames. Motion lives at the edges, none during the
-  hold.
+- Entrance ≈ 12 frames (ease-out rise — never a slam); **hold ≥ 20 frames**
+  with micro-life only: `letterSpacing` easing from slightly wide to normal
+  and a slow breathing `scale` 1.0 → 1.015 — readable and held, never frozen,
+  never repositioned; exit fade ≈ 8 frames.
 - The backdrop keeps running underneath; the soft radial glow ties the word
   to the video's space. If more emphasis is needed, drift the backdrop's
   gradient toward the word during the beat — don't swap the background.
@@ -750,6 +825,48 @@ export const SfxLayer: React.FC<{
 Placement: cut-aligned effects go at `sceneStart(i) - TRANSITION_FRAMES / 2`.
 A typical 30 s video: one quiet whoosh on the main chapter cut, one switch/
 page-turn when the hero screen lands, one soft accent on the CTA — done.
+
+## Finishing layer (add once per project)
+
+Cheap, global, reads as production value:
+
+- **Grain**: one overlay above ALL scenes — an SVG `feTurbulence` tile as a
+  data URI at `opacity ≈ 0.05` with per-frame `backgroundPosition` jitter.
+  It breaks the banding that big dark gradients otherwise show.
+
+```tsx
+import React from "react";
+import { AbsoluteFill, useCurrentFrame } from "remotion";
+
+const NOISE =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='128' height='128' filter='url(#n)' opacity='1'/></svg>`,
+  );
+
+export const Grain: React.FC<{ opacity?: number }> = ({ opacity = 0.05 }) => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundImage: `url("${NOISE}")`,
+        backgroundPosition: `${(frame * 17) % 128}px ${(frame * 31) % 128}px`,
+        opacity,
+        pointerEvents: "none",
+      }}
+    />
+  );
+};
+```
+
+- **Screen glare**: a static diagonal gradient over every device mockup's
+  screen content —
+  `linear-gradient(115deg, rgba(255,255,255,0.07) 0%, transparent 40%)`,
+  absolutely positioned, `pointerEvents: "none"`.
+- **CTA shine**: a looping highlight sweep across the CTA pill — a rotated
+  white gradient strip whose `translate` crosses the button every ~90 frames.
+- **Chapter words breathe** during their hold (see ChapterWord rules) —
+  held, never frozen.
 
 ## Cursor (animated pointer for UI recreations)
 

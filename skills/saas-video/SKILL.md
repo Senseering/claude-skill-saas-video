@@ -71,6 +71,16 @@ Extract:
 - **Brand assets**: brand colors (tailwind.config, CSS custom properties, theme
   files), logo files (public/, assets/), font choices. Using the product's real
   brand colors in the video is a big quality win — extract them if they exist.
+- **Data-viz language** (when the product renders maps/charts/particles): open
+  those components and copy the exact visualization vocabulary — heatmap ramps
+  (every hex stop), marker fill + stroke, path styles (glow + core color
+  pairs), particle head/tail colors, chart series colors, legend gradients,
+  live-indicator styling. The app's real color ramp instead of a generic one
+  is the difference between "inspired by the product" and "recognizably the
+  product".
+- **World specifics**: the deployment city, real street/place names, real
+  device IDs, real event names. These feed the Phase 4 screen specs —
+  specificity is what makes recreated canvases believable.
 - **UI inventory** (whenever the product has a UI): the app's actual screens
   and views, found via routes and page components, and which screen each
   candidate feature lives on. This matters as much as the feature list: scenes
@@ -128,6 +138,17 @@ component/page source (layout regions, real nav/button/label texts, chart
 types, colors, sample data shapes) and write a short **screen spec** per
 feature scene. Scenes recreate these real screens — someone who knows the app
 must recognize it in the video.
+
+The spec covers the **content canvas**, not just the chrome: any real-world
+canvas the app renders (map, calendar, document, feed, terminal) must itself
+be believable at video distance — one abstract canvas (straight grid lines +
+rectangles as a "map", a chart with no axis, an editor full of lorem) poisons
+every scene that contains it, no matter how faithful the surrounding chrome
+is. For a map: a curved river, an irregular street network with road
+hierarchy (dark casing under brighter core strokes), city blocks with rooftop
+texture, parks, and 5–8 REAL street/place names from the deployment city as
+dim labels. Specificity sells authenticity — use the real city, device IDs,
+and event names mined in Phase 2.
 
 Then write the narration and scene plan:
 
@@ -210,7 +231,14 @@ Then write the narration and scene plan:
     busy", "works with"). A scene with no billboard-worthy phrase gets zero
     keywords — nothing beats nonsense;
   - **beats**: which narration word triggers which visual event — the
-    choreography input for Phase 6;
+    choreography input for Phase 6. Beats must **transform, not decorate**:
+    the weakest beat is "X fades in when the narrator says X"; the strongest
+    is a before→after state change on the recreated UI that enacts the claim
+    — raw MAC addresses visibly masking to "7A ·· ·· ·· 1C" on "anonymous",
+    one spotlighted sensor (dark veil + dashed range ring) becoming a full
+    mesh on "dozens", a coverage polygon sweeping closed on "net". For each
+    scene's key claim ask: what can the UI itself DO to prove this? Reserve
+    plain appear/fade for secondary elements;
   - **silhouette + cut**: which layout silhouette the scene uses (variety
     section of the guide) and which transition from the preset's kit leads
     into it — no two adjacent scenes share either. Device frames may star in
@@ -220,7 +248,11 @@ Then write the narration and scene plan:
     presentations. The backdrop persists across the cut while scene N's
     elements exit staggered and scene N+1's elements enter, blended by a
     10–15 frame fade so no frame is a snap; zoom-throughs
-    and chapter words carry the big moments.
+    and chapter words carry the big moments. **Cross-scene payoffs**: when
+    adjacent scenes show the same world at different scales (device map →
+    full-bleed map), plan the zoom-through to dive literally from one into
+    the other — same canvas component, same coordinates on both sides of the
+    cut. Decide this at scene-plan time, not in the edit.
 - **One narrator**: exactly one voice AND one delivery-style prompt for the
   whole video (see `replicate-audio.md` — varying the style per clip makes the
   narrator sound like a different person between scenes).
@@ -271,27 +303,47 @@ preset in `references/styles.md`. Then:
    captions, soundtrack, backgrounds) and adapt them to the theme.
 4. Build one component per scene, recreating the real screen from its Phase 4
    screen spec inside a device frame, with the distinct layout silhouette the
-   plan assigned. Captions are overlays — never reserve blank space for them;
-   every layout must look complete and balanced with zero captions visible.
-   Scene lengths are **driven by the actual TTS audio
+   plan assigned. Build any real-world canvas the app renders (map, calendar,
+   feed) **once** as a reusable component — one believable canvas lifts every
+   scene that shows it. In 9:16, give device scenes an `overlay` slot for
+   satellite cards (styles.md). Captions are overlays — never reserve blank
+   space for them; every layout must look complete and balanced with zero
+   captions visible. Scene lengths are **driven by the actual TTS audio
    durations** via `calculateMetadata` (pattern in the guide) — never
    hardcode scene durations.
-5. Choreograph every scene across its FULL duration (choreography section of
+5. Keep canvas overlays in the canvas's coordinate space: pins, routes, and
+   coverage shapes render in a second SVG with the **identical `viewBox` +
+   `preserveAspectRatio`** stacked on the canvas — never %-positioned HTML in
+   a parallel space (a `slice`-cropped container with a different aspect
+   ratio silently misaligns every pin). Export the canvas geometry (street
+   polylines, intersection points) and make every scene consume it: routes
+   follow actual streets, sensors sit on actual intersections, and
+   `pointAlong()` (components.md) drives particles and arrowhead angles.
+6. Choreograph every scene across its FULL duration (choreography section of
    the guide): time visual events to narration beats with the `atWord()`
    helper, keep an ambient motion layer running throughout, and never let the
-   frame freeze for more than ~1.5 s. Front-loading all animation into the
-   first second produces a slideshow — the #1 quality killer.
-6. Wire scenes into a `TransitionSeries` with per-scene voiceover audio and
+   frame freeze for more than ~1.5 s. Ambient life belongs **inside the
+   world**, not just on the camera — traffic dots moving along the map's
+   roads, pedestrian dots on lanes, water shimmer, wobbling signal bars,
+   running from frame 0 (this cures "scene opens dead while the entrances
+   play" without front-loading the choreography). Front-loading all animation
+   into the first second produces a slideshow — the #1 quality killer.
+7. Wire scenes into a `TransitionSeries` with per-scene voiceover audio and
    the looping, ducked soundtrack. Render the backdrop ONCE, outside the
    series, and give scenes transparent backgrounds — cuts then never move
    the frame, only swap foreground elements. Cut with the preset's kit
    (element exits/entrances, `FloatingHero`, chapter words, zoom-throughs —
    see components.md): **elements move, the screen never slides**, and never
    a plain fade between every scene.
-7. If the user opted into sound effects, add an `SfxLayer` with **2–4 quiet
+8. If the user opted into sound effects, add an `SfxLayer` with **2–4 quiet
    effects total** (volume ≈ 0.15–0.25) at the biggest moments only — the main
    chapter cut, the hero number landing, the final CTA. Never one per cut,
    never meme sounds; full restraint rules in `components.md`.
+9. Add the finishing layer (components.md): a global `Grain` overlay above
+   all scenes (breaks banding in big dark gradients), a static screen-glare
+   gradient on device mockups, a looping shine sweep across the CTA button,
+   and micro-life on chapter-word holds. Cheap, global, reads as production
+   value.
 
 ## Phase 7 — Visual QA (required)
 
@@ -312,6 +364,10 @@ then **look at every image** and check:
   element that pops in at full opacity, vanishes in a frame, or jumps
   position between neighboring stills is abrupt — ease it and overlap the
   exit/entrance across the fade.
+- Caption-zone collision (9:16 especially): any element borrowing the
+  below-device zone (satellite cards) has fully vacated **≥ 4 frames before**
+  the scene's first keyword caption fires — compute the caption's first word
+  with `atWord()`.
 - One clear focal point; text inside safe areas and not overflowing; readable
   contrast; keyword captions legible; mockups not clipped.
 - The recreated screens actually resemble the product — compare against the
@@ -345,6 +401,22 @@ wants to preview interactively.
   affected clip ids, re-render (durations adapt automatically).
 - New format (e.g. 9:16 after 16:9): add a second `<Composition>` with new
   dimensions, adjust layout constants per `styles.md`, reuse all audio.
+
+## The improvement pass
+
+When asked to improve an existing video rather than build one:
+
+1. **Diagnose before touching code**: render the current cut once at
+   `--scale=0.35`, then extract 15–20 evenly spaced frames with ffmpeg
+   (`ffmpeg -i out/final.mp4 -vf fps=0.5 out/qa/f%02d.png` — far cheaper
+   than many `remotion still` calls, each of which re-bundles the project).
+   Re-read the real product's screens, then write a defect list.
+2. **Order fixes by screen-time impact**: a shared canvas component that
+   appears in 3 scenes outranks any single-scene fix.
+3. **Keep the approved narration and music untouched** — a drastic visual
+   pass costs zero Replicate credits. Tell the user this up front.
+4. **Verify** with the standard Phase 7 pass PLUS full-scale (`--scale=1`)
+   stills of UI-heavy scenes and bracket stills around the flashiest cut.
 
 ## Pitfalls
 

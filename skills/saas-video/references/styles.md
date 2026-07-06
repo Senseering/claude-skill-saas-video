@@ -148,6 +148,13 @@ Feels like: Duolingo/Headspace warmth.
 - **9:16 (1080×1920)**: stack vertically — headline top third, mockup middle,
   captions lower third. PhoneFrame at 55–65 % of width. Text sizes as at 1080
   wide. Safe areas: ≥ 120 px top/bottom (platform UI overlays chrome there).
+  A centered device leaves dead side/bottom margins — fill them with 1–2
+  floating **satellite cards** (a glass notification, a live tally)
+  overlapping the device edge, each with its own parallax float and its own
+  beat timing; give the device-scene shell an `overlay` slot for them. The
+  below-device zone may be borrowed by such an element, but it must vacate
+  before the keyword caption fires: compute the caption phrase's FIRST word
+  with `atWord()` and finish the element's fade **≥ 4 frames before** it.
 - **1:1 (1080×1080)**: center-weighted single-column layouts; browser mockups
   at ~85 % width; trim headline lengths.
 - **16:9 (1920×1080)**: scale text up (~1.5× the 1080-wide minimums); side-by-side
