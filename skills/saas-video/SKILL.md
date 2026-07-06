@@ -90,9 +90,23 @@ Extract:
 ## Phase 3 — Interview the user
 
 Round 1 — content:
+- **Target group**: who is the ONE viewer this video speaks to? Offer 3–4
+  concrete roles derived from the Phase 2 analysis (e.g. "event organizers",
+  "city planners", "retail ops leads") plus free-form. One video = one
+  viewer: this person becomes the protagonist of the through-line, and the
+  hook's pain, the vocabulary, and every example follow from it. If the user
+  names two audiences, recommend two videos rather than one blurry one.
 - Which features to highlight? Multi-select from your Phase 2 list, and make
   clear they can steer in a completely different direction with a free-form
   answer instead.
+- **Status quo**: what does that viewer do today instead — a spreadsheet, a
+  manual process, gut feeling, a named competitor? The hook attacks the
+  status quo, and before/after arcs need the "before". The repo can't tell
+  you this; the user can.
+- **Proof points**: real numbers or names the video may show — user count,
+  accuracy, time saved, a recognizable customer. Concrete beats generic in
+  hooks and keywords, and nothing may be invented: no number from the user,
+  no number on screen.
 - **Call to action**: the ONE specific action viewers should take at the end
   — "Start your free trial", "Book a 10-minute demo", "Join the waitlist" —
   plus its URL. Vague endings ("Learn more") measurably underperform; get
@@ -154,12 +168,13 @@ Then write the narration and scene plan:
 
 - **Pacing**: TTS speaks ≈ 2.5 words/second. A 30 s video holds ~70 words total.
   Leave breathing room — under-write rather than over-write.
-- **Through-line first (der rote Faden)**: before writing any scene, pick ONE
-  viewer (a specific role), ONE core use case (the one that kills the biggest
-  pain — the product does fifty things; this video nails one, the rest
-  deserve their own videos later), ONE tension the hook opens, and ONE story
-  arc that resolves it — then let the selected features enter as beats of
-  that story,
+- **Through-line first (der rote Faden)**: before writing any scene, lock ONE
+  viewer (the target group chosen in Round 1), ONE core use case (the one
+  that kills the biggest pain — the product does fifty things; this video
+  nails one, the rest deserve their own videos later), ONE tension the hook
+  opens (built on the Round 1 status quo — that's the "before" the video
+  attacks), and ONE story arc that resolves it — then let the selected
+  features enter as beats of that story,
   in the order the viewer would actually meet them. Never present features as
   a list ("it also does X… and Y…"). Arcs that work:
   - *A day with the product*: one concrete scenario; each feature appears the
@@ -194,7 +209,8 @@ Then write the narration and scene plan:
   given a quiet moment on the persistent backdrop — not a hard slam.
 - **Copy quality**: the narration must survive being read aloud. Every
   sentence carries ONE concrete idea in plain spoken language — "you" language,
-  active voice, specifics and numbers instead of adjectives. The hook names
+  active voice, specifics and numbers instead of adjectives (only the proof
+  points the user supplied in Round 1 — never invent a stat). The hook names
   the viewer's problem or makes one bold claim in words a person would
   actually say; never open with abstract poetry about the product. Banned
   filler: "turns X into Y", "seamlessly", "empowers", "unlock", "like never
@@ -260,9 +276,9 @@ Then write the narration and scene plan:
 Present the through-line as one sentence first ("A festival organizer wonders
 if the east entrance is overcrowded — CityPulse answers it live, then proves
 it's private"), then the plan as a table (scene, narration, keywords, screen +
-interaction) plus the voice, music prompt, style, duration, placement, and
-CTA choices. State that generating audio calls the paid Replicate API.
-**Get explicit approval before continuing.**
+interaction) plus the target group, voice, music prompt, style, duration,
+placement, and CTA choices. State that generating audio calls the paid
+Replicate API. **Get explicit approval before continuing.**
 
 ## Phase 5 — Generate audio
 

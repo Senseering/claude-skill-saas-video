@@ -83,10 +83,12 @@ Claude will then:
 1. **Check prerequisites** — Replicate token, Node version.
 2. **Analyze your repo** — README, docs, routes, components → the most
    marketable features, plus your brand colors and logo if it finds them.
-3. **Interview you** — pick features (or steer in a different direction),
-   duration (15/30/60 s), aspect ratio, visual style (5 presets from
-   "Gradient Launch" to "Kinetic Bold"), voiceover yes/no + voice + language,
-   music vibe, and where to put the project.
+3. **Interview you** — the target group the video speaks to, which features
+   to highlight (or steer in a different direction), what viewers do today
+   instead, real proof points, your call to action, where the video will
+   live, duration, aspect ratio, visual style (5 presets from "Gradient
+   Launch" to "Kinetic Bold"), voiceover yes/no + voice + language, music
+   vibe, and where to put the project.
 4. **Write the script** — narration, on-screen keywords, and a visual concept
    per scene. **Nothing is generated until you approve** (this is the step
    that starts spending Replicate credits).
