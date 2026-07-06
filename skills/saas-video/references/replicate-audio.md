@@ -70,6 +70,10 @@ characters — don't dump the full table.
   with terminal punctuation.
 - Don't stage-direct the visuals ("now watch…", "see here…") — the animations
   are stylized recreations, not a screen recording; state the capability.
+- Never open a clip with a bare conjunction (But / And / So / Then) — every
+  clip is heard fresh after a visual cut, so it sounds like a skipped beat.
+  Put the contrast inside the sentence: "One sensor alone only sees its own
+  corner."
 - Numbers: write them the way they should be read ("over ten thousand teams").
 - If (and only if) the discovered schema has a dedicated style/instructions
   parameter, use it for delivery hints ("enthusiastic, energetic delivery").

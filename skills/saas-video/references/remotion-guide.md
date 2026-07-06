@@ -179,11 +179,22 @@ scene a distinct **silhouette** — assign a different one per scene in the plan
 2. Device hero centered (phone/browser dominates the frame)
 3. Split: copy on one side, device on the other (mirror it next time)
 4. UI full-frame: browser mockup at ~90 % width, camera slowly zooming in
-5. Interstitial word-slam (0.6–0.9 s, no narration)
-6. End card
+5. UI close-up: ONE real component (counter, chart, notification card)
+   rebuilt huge with no device chrome, doing its real behavior
+6. Interstitial word-slam (0.8–1.2 s, no narration)
+7. End card
+
+**Mockup budget**: device frames star in at most half the scenes — the phone
+specifically in at most two per video. A phone in nearly every scene is the
+fastest way to make the video boring; a UI close-up carries a feature just as
+well without the repetition.
 
 Vary the cuts the same way — one `fade()` everywhere is the transition version
-of a slideshow. Use the preset's transition kit (styles.md) built from the
+of a slideshow. But vary the *type*, not the *direction*: pick ONE screen
+direction for the whole video (e.g. everything pushes left = "forward") and
+keep every slide/push/hero-flight on it. A cut that slides right into an
+interstitial and back left out of it whips the viewer's eye around and
+nothing gets read. Use the preset's transition kit (styles.md) built from the
 cinematic patterns in components.md: a `FloatingHero` device that travels
 across cuts, zoom-throughs into screens, interstitials, slides/wipes — with at
 most a couple of quiet SFX accents across the whole video (restraint rules in

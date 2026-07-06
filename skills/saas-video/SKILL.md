@@ -135,7 +135,13 @@ Then write the narration and scene plan:
   is worse than no connective. **Seam test**: read scene N's last sentence
   and scene N+1's first sentence as one pair; if the join is a non sequitur
   ("…so you can run it anywhere in public. Then compare weeks…"), rewrite one
-  side. **Shuffle test**:
+  side. And the connection lives in the *content*, never in a conjunction
+  bolted onto the front: each scene is a separate voice clip heard right
+  after a visual cut, so an opener like "But a single sensor only sees its
+  own corner." sounds like the video skipped a beat. Never start a scene's
+  narration with a bare But / And / So / Then — bake the pivot into the
+  sentence itself ("One sensor alone only sees its own corner.").
+  **Shuffle test**:
   if the feature scenes could be reordered without anyone noticing, there is
   no thread; rewrite. A 30 s video carries at most 3 feature beats — cut
   features rather than the story.
@@ -165,8 +171,9 @@ Then write the narration and scene plan:
   trust.
 - **Per scene**:
   - id and narration (1–2 spoken sentences, written for the ear);
-  - **visual**: which real screen is recreated inside which frame
-    (browser/phone) and the one interaction that animates while the voice
+  - **visual**: which real screen is recreated inside which vehicle — browser
+    frame, phone frame, or a chrome-less **UI close-up** of one component —
+    and the one interaction that animates while the voice
     talks (e.g. "live map view with area polygons; device dots keep appearing
     and the count badge ticks up"). Abstract/icon visuals are a last resort
     for claims with no UI (e.g. privacy) — never for a feature that has a screen;
@@ -183,7 +190,11 @@ Then write the narration and scene plan:
     choreography input for Phase 6;
   - **silhouette + cut**: which layout silhouette the scene uses (variety
     section of the guide) and which transition from the preset's kit leads
-    into it — no two adjacent scenes share either.
+    into it — no two adjacent scenes share either. Device frames may star in
+    at most half the scenes, the phone specifically in at most two per video;
+    a chrome-less UI close-up of one component usually beats another phone
+    scene. Cuts keep ONE travel direction across the whole video — never
+    ping-pong (slide right into a word-slam, slide back left out of it).
 - **One narrator**: exactly one voice AND one delivery-style prompt for the
   whole video (see `replicate-audio.md` — varying the style per clip makes the
   narrator sound like a different person between scenes).

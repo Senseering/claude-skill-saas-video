@@ -163,6 +163,19 @@ Charts: animated SVG — bars via height interpolation, lines via
 `strokeDashoffset` from path length to 0, live feeds by appending dots/rows on
 a frame schedule.
 
+## UI close-up — one component, no chrome
+
+Often stronger than a third device scene: take ONE real component from the
+app (the live counter, a chart, a notification card, a permission toggle),
+rebuild it at 2–4× its real size — 600–900 px wide at 1080p — and float it
+directly on the background with a soft shadow and slight tilt
+(`rotate: "-2deg"`). No phone, no browser bar. Then animate its *real
+behavior* while the voice talks: the count ticks up, the chart draws itself,
+the notification slides in and settles. One component, huge and alive, reads
+instantly at video distance and breaks the device-frame monotony. Reuse the
+recreation techniques from "Inside the frames" — real labels, real colors,
+simplified everything else.
+
 ## Word timings: sync visuals to the narration
 
 Shared util — the timing backbone for keyword captions AND scene choreography.
@@ -577,14 +590,30 @@ export const FloatingHero: React.FC<{
 Rules: scenes under a FloatingHero must reserve empty layout space where the
 hero will sit (it floats over them); fly it out (offscreen or opacity 0 over
 ~10 frames) before scenes where it doesn't belong; never park it in the same
-spot twice.
+spot twice. And it is a through-line, not wallpaper: a phone visible in
+nearly every scene is boring — the hero should be small and supporting in
+most scenes, the star in one or two, and absent for at least one chapter. If
+the product isn't mobile-first, make the hero a browser instead, or skip the
+pattern entirely and lean on UI close-ups.
 
 ### Interstitial — a full scene as a transition
 
-A 0.6–0.9 s full-bleed beat between chapters: hard background slam + one huge
+A 0.8–1.2 s full-bleed beat between chapters: hard background slam + one huge
 word ("LIVE.", "PRIVATE.", the product name). Insert as a normal
 `TransitionSeries.Sequence` with **no narration audio** and a fixed duration
-(18–27 frames), joined with hard cuts or 6-frame fades.
+(24–36 frames), joined with hard cuts or 6-frame fades.
+
+Readability rules — an interstitial nobody can read is worse than no
+interstitial:
+
+- The entrance settles within ~6 frames; after that the word **holds still
+  and fully readable for at least 15–20 frames** before the next cut. All
+  motion budget goes to the entrance, none to the hold.
+- If slide transitions join it, both cuts travel in the SAME screen direction
+  (in from-right, out from-right → the video keeps moving left). Sliding one
+  way into the word and back the other way out whips the viewer's eye around
+  and kills the read.
+- One word. Two at most.
 
 ```tsx
 import React from "react";

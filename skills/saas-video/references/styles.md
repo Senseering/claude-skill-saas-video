@@ -25,10 +25,11 @@ Feels like: Stripe/Linear launch video. Dark, premium, vibrant.
   12–20 frame entrances, slow continuous drift on backgrounds and mockups.
 - **Captions**: white uppercase keywords, bottom-center (KeywordCaptions default).
 - **Mockups**: GlassCard features, BrowserFrame (dark) or PhoneFrame hero.
-- **Transition kit**: `FloatingHero` phone traveling across scenes as the
-  visual through-line; zoom-through into the device screen for the feature
-  reveal; one quiet whoosh on the main cut only; `fade()` reserved for the
-  end card.
+- **Transition kit**: zoom-through into a screen for the feature reveal;
+  optional `FloatingHero` (browser or phone) as the visual through-line —
+  only if it changes size/role every scene and sits out at least one chapter
+  (mockup budget applies); one quiet whoosh on the main cut only; `fade()`
+  reserved for the end card.
 - **Music prompt**: `"modern commercial electro-pop, punchy sidechained synth
   bass, bright plucks, tight four-on-the-floor kick at 122 BPM, euphoric
   chorus lift with a big drum fill, glossy radio-ready production, wide
@@ -96,8 +97,9 @@ Feels like: hype launch on TikTok. The typography IS the visual.
 - **Mockups**: minimal; occasional PhoneFrame popping in at an angle
   (`rotate: "-6deg"`).
 - **Transition kit**: the background color slam IS the cut (hard cut to a new
-  full-bleed color on the beat) plus 6-frame `slide()` in alternating
-  directions; interstitial word-slams constantly — this style is basically
+  full-bleed color on the beat) plus 6-frame `slide()` — always in the SAME
+  direction, the video travels forward, never back; interstitial word-slams
+  constantly (each held readable ≥ 15 frames) — this style is basically
   interstitials with narration. The music's beat does the punching; keep SFX
   to 1–2 quiet whips max.
 - **Music prompt**: `"big-room trap hip-hop hybrid, booming 808 bass, hard
@@ -119,9 +121,10 @@ Feels like: Duolingo/Headspace warmth.
 - **Captions**: keywords in white pill badges with the accent as text color,
   slight rotation per word.
 - **Mockups**: PhoneFrame hero front and center; emoji as icon accents are fine.
-- **Transition kit**: `clockWipe()` and bouncy `slide()` with spring timing;
-  a single soft switch pop on the hero card entrance; the `FloatingHero`
-  phone bounces to a new corner each scene with ±10° rotation.
+- **Transition kit**: `clockWipe()` and bouncy `slide()` with spring timing
+  (one consistent direction); a single soft switch pop on the hero card
+  entrance; if a `FloatingHero` phone is used, it stars in max two scenes
+  and bounces corners with ±10° rotation.
 - **Music prompt**: `"feel-good indie pop, bouncy bassline, bright marimba and
   ukulele accents, claps and finger snaps at 112 BPM, cheerful whistling hook,
   sunny advert energy, crisp modern production, instrumental"`.
