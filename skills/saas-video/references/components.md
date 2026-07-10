@@ -789,9 +789,14 @@ meme edit. Hard rules:
   the biggest moments: the main chapter cut, the hero number landing, the
   final CTA.
 - **Whitelist**: `whoosh.wav`, `whip.wav`, `switch.wav`, `page-turn.wav`,
-  `mouse-click.wav` from remotion.media. Everything else in that library is a
-  meme sound (vine-boom, anime-wow, bruh…) — never use them in a marketing
-  video.
+  `mouse-click.wav` from remotion.media — all **motion** sounds. Everything
+  else in that library is a meme sound (vine-boom, anime-wow, bruh…) — never
+  use them in a marketing video.
+- **Never a "pling".** No chime, ding, bell, sparkle, twinkle, coin, success
+  "ding", or notification sound anywhere in the video — least of all on the
+  CTA. These read as a phone notification and instantly cheapen the piece.
+  Even if such a file existed in the library, it is banned. Sounds move things;
+  they never "announce" things.
 - **Volume 0.12–0.25** — felt, not noticed. Soften a whoosh further with
   `playbackRate={1.15}`. Place effects in the gaps between narration
   sentences (cuts naturally fall there), never over a word.
@@ -824,7 +829,8 @@ export const SfxLayer: React.FC<{
 
 Placement: cut-aligned effects go at `sceneStart(i) - TRANSITION_FRAMES / 2`.
 A typical 30 s video: one quiet whoosh on the main chapter cut, one switch/
-page-turn when the hero screen lands, one soft accent on the CTA — done.
+page-turn when the hero screen lands — done. The CTA gets no "ping"; if it
+needs a lift, let the music swell or the button shine sweep carry it.
 
 ## Finishing layer (add once per project)
 

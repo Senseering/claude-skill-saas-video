@@ -17,6 +17,27 @@ screen is code-generated Remotion animation — kinetic typography, device
 mockups (iPhone / browser / laptop frames), stylized UI recreations, animated
 backgrounds. No screenshots. The voiceover and music come from Replicate.
 
+## The workflow is not optional — never skip straight to building
+
+The most common request is terse: *"create a video, here's the repo path."*
+That is the NORMAL way this skill is invoked — it is **not** permission to skip
+ahead and start building. A one-line request means "you drive the questions",
+not "assume everything and go". Walk these gates in order and **STOP** at each
+until the user has answered; never collapse them:
+
+1. **Analyze the repo yourself** (Phase 2). Never ask the user what the product
+   does or which features it has — mine that from the code.
+2. **Interview the user** (Phase 3) before writing anything. At minimum you
+   MUST ask: **which features to highlight**, the **target group**, and the
+   **placement/duration/aspect/style** and **voice/language/music**. Use the
+   AskUserQuestion tool. Do not guess these from the repo and proceed.
+3. **Get script approval** (Phase 4). Present the narration + scene plan and
+   wait for an explicit "yes" before any Remotion code or any Replicate call.
+
+If you find yourself scaffolding a Remotion project or calling Replicate and
+the user has not answered the interview and approved a script, you have
+skipped the point of this skill — stop and back up.
+
 ## Reference files (load on demand, relative to this skill's directory)
 
 | File | Load when |
@@ -33,9 +54,12 @@ too when building — it is more detailed than the condensed guide here.
 
 - **Money gate.** Replicate calls cost API credits. Never call Replicate before
   the user has approved the script/scene plan (Phase 4 → 5 boundary).
-- **Ask, don't assume.** Features, duration, aspect ratio, style, voice, music,
-  and output location all come from the user. Use the AskUserQuestion tool when
-  available (multi-select for features; users can always answer free-form).
+- **Ask, don't assume.** Which features to highlight, target group, duration,
+  aspect ratio, style, voice, music, and output location all come from the
+  user — never inferred from the repo alone. Use the AskUserQuestion tool when
+  available (multi-select for features; users can always answer free-form). A
+  short request ("just make a video, here's the path") is the norm and is NOT a
+  license to skip the interview.
 - **Verify visually.** Render still frames and look at them before the final
   render. Never deliver a video whose frames you have not seen.
 - **Benefits, not implementation.** Marketing copy sells outcomes ("Ship in
@@ -148,8 +172,10 @@ Round 3 — audio:
   question entirely for languages without the distinction (English).
 - **Music**: suggest a vibe matching the chosen style preset (each preset in
   `styles.md` has a music prompt), offer alternatives or no music.
-- **Sound effects**: subtle (2–4 quiet accents at the biggest moments — the
-  default) or none.
+- **Sound effects**: subtle (2–4 quiet motion sounds — whoosh/switch/
+  page-turn — at the biggest moments, the default) or none. **Never bright
+  "pling"/chime/ding/bell/sparkle/notification sounds** — they read as cheap
+  and app-notify-y; whitelist only (see `components.md`).
 
 ## Phase 4 — Script and scene plan (approval gate)
 
@@ -363,8 +389,10 @@ preset in `references/styles.md`. Then:
    a plain fade between every scene.
 8. If the user opted into sound effects, add an `SfxLayer` with **2–4 quiet
    effects total** (volume ≈ 0.15–0.25) at the biggest moments only — the main
-   chapter cut, the hero number landing, the final CTA. Never one per cut,
-   never meme sounds; full restraint rules in `components.md`.
+   chapter cut and the hero screen/number landing. Whitelist only (whoosh,
+   whip, switch, page-turn, click). Never one per cut, never meme sounds, and
+   **never a "pling"/chime/ding/bell/sparkle/notification** sound — especially
+   not on the CTA. Full restraint rules in `components.md`.
 9. Add the finishing layer (components.md): a global `Grain` overlay above
    all scenes (breaks banding in big dark gradients), a static screen-glare
    gradient on device mockups, a looping shine sweep across the CTA button,
@@ -459,8 +487,11 @@ When asked to improve an existing video rather than build one:
   the rest of the scene as a freeze-frame. Spread events across the narration
   with `atWord()` and keep ambient motion running.
 - SFX on every cut reads as a TikTok meme edit. 2–4 quiet whitelist effects
-  per video, total — and a feature-list script with no through-line feels like
-  a slideshow no matter how good the scenes are.
+  per video, total — motion sounds only (whoosh/switch/page-turn). **A bright
+  "pling"/chime/ding/sparkle sound reads as a phone notification and cheapens
+  the whole video** — never add one, least of all on the CTA. And a
+  feature-list script with no through-line feels like a slideshow no matter how
+  good the scenes are.
 - Abrupt = cheap. Any visible change faster than ~8 frames or without easing
   reads as a glitch. Exits overlap entrances across a 10–15 frame fade so the
   motion never stops dead; true hard cuts belong only to Kinetic Bold.
