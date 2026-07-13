@@ -1,5 +1,13 @@
 # 🎬 saas-video — marketing videos for your repo, made by Claude Code
 
+<p align="center">
+  <a href="https://github.com/Senseering/claude-skill-saas-video/blob/main/assets/demo.mp4">
+    <img src="https://raw.githubusercontent.com/Senseering/claude-skill-saas-video/main/assets/demo-poster.jpg" alt="Watch the demo — a 33-second marketing video the skill made about itself" width="640">
+  </a>
+  <br>
+  <em>▶ <a href="https://github.com/Senseering/claude-skill-saas-video/blob/main/assets/demo.mp4">Watch with sound (33s)</a> — the skill made this video about itself, from one prompt.</em>
+</p>
+
 A [Claude Code](https://claude.com/claude-code) skill that turns any software
 repo into a polished marketing video in one conversation:
 
@@ -119,6 +127,9 @@ npx remotion studio
 .claude-plugin/
   plugin.json               # plugin manifest
   marketplace.json          # lets you install via /plugin marketplace add
+assets/
+  demo.mp4                  # the demo video (the skill marketing itself)
+  demo-poster.jpg           # poster frame shown in this README
 skills/saas-video/
   SKILL.md                  # the workflow Claude follows
   references/
