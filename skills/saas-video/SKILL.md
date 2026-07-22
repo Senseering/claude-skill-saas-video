@@ -42,7 +42,7 @@ skipped the point of this skill — stop and back up.
 
 | File | Load when |
 |---|---|
-| `references/replicate-audio.md` | Before generating any audio (Phase 5) — voices, prompts, config format, mixing levels |
+| `references/replicate-audio.md` | Before writing the narration (Phase 4) and before generating any audio (Phase 5) — voices, style prompt, duration model, TTS pitfalls, config format, mixing levels |
 | `references/styles.md` | Before presenting style options (Phase 3) and while building scenes (Phase 6) |
 | `references/remotion-guide.md` | Before scaffolding or writing any Remotion code (Phase 6) |
 | `references/components.md` | While building scenes (Phase 6) — copy-paste device mockups, keyword captions, backgrounds |
@@ -62,6 +62,11 @@ too when building — it is more detailed than the condensed guide here.
   license to skip the interview.
 - **Verify visually.** Render still frames and look at them before the final
   render. Never deliver a video whose frames you have not seen.
+- **Verify audibly — and measure what you can.** Prosody (question intonation,
+  a mispronounced brand name) is only findable by listening; clip length and
+  dropouts are measurable, and the script checks them for you. Trust the
+  measurement for length, trust ears for everything else, and never claim a
+  prosody problem is machine-checked.
 - **Benefits, not implementation.** Marketing copy sells outcomes ("Ship in
   minutes"), not tech ("Uses a Rust-based build pipeline").
 
@@ -74,7 +79,12 @@ too when building — it is more detailed than the condensed guide here.
    `export REPLICATE_API_TOKEN=r8_...` or put it in a `.env` file. Analysis
    phases can proceed without it, but stop before Phase 5 until it is set.
 2. Check `node --version` is ≥ 18 (needed for Remotion and the audio script).
-3. Note whether `ffprobe` exists (nice for logging audio durations; not required).
+3. Note whether `ffmpeg`/`ffprobe` and ImageMagick (`montage`) exist. None is
+   strictly required, but without them you lose the clip-length sanity check
+   and `calibrate` (Phase 5, `ffprobe`), the `tempo` control (`ffmpeg`), and
+   the QA contact sheet (Phase 7). Suggest `brew install ffmpeg imagemagick`
+   if they're missing — the length check in particular catches a failure mode
+   nothing else in the pipeline reports.
 
 ## Phase 1 — Locate the product
 
@@ -198,8 +208,16 @@ and event names mined in Phase 2.
 
 Then write the narration and scene plan:
 
-- **Pacing**: TTS speaks ≈ 2.5 words/second. A 30 s video holds ~70 words total.
-  Leave breathing room — under-write rather than over-write.
+- **Pacing**: TTS speaks ≈ 2.5 words/second, so a 30 s video holds ~70 words —
+  use that for the first draft, then check the real number: per clip,
+  `seconds ≈ characters / charsPerSecond + sentenceEnds × pauseSeconds`, and
+  the video ≈ the sum of those plus per-scene tails minus transition overlaps.
+  **Sentence-ends are half the runtime** — each buys 0.2–0.6 s of silence, so
+  cutting words barely shortens a script while cutting periods does. After the
+  first generation run `calibrate` (replicate-audio.md) to fit both constants
+  for this voice + language + style prompt and re-check the target runtime
+  *before* regenerating anything. Leave breathing room — under-write rather
+  than over-write.
 - **Through-line first (der rote Faden)**: before writing any scene, lock ONE
   viewer (the target group chosen in Round 1), ONE core use case (the one
   that kills the biggest pain — the product does fifty things; this video
@@ -256,15 +274,30 @@ Then write the narration and scene plan:
   EVERYWHERE — narration, keyword captions, CTA button text, recreated UI
   labels, satellite cards. A "du" narration ending on a "Starten Sie" button
   reads as a bug; check every on-screen string against the chosen register.
-- **TTS-safe sentence shapes**: the TTS renders periods reliably but mangles
-  subtle comma prosody — a comma before a trailing clause often collapses
-  ("…flow between zones, and where the hotspots build" comes out as two
-  rushed sentences with the gap eaten). At most one comma per sentence; never
-  attach a clause with ", and" / ", so" — start a new sentence instead; no
-  subject-less trailing clauses; no triple lists ("compare weeks, spot every
-  peak, and staff the busy days" → two sentences, max two items each). When
-  a pause matters, end the sentence — the period is the only pause you can
-  trust.
+- **Punctuation is the emphasis tool** — not word choice. The TTS renders
+  periods reliably but mangles subtle comma prosody, so a comma before a
+  trailing clause often collapses ("…flow between zones, and where the
+  hotspots build" comes out as two rushed sentences with the gap eaten).
+  The period is the only pause you can trust — **and every period costs
+  0.2–0.6 s of silence**, so it is a budget, not a free safety measure. Both
+  extremes fail: one-word sentences ("Forget nothing. Never double-book.
+  Remember every customer.") read well on paper but sound like a read-aloud
+  list and burn ~8 s of silence per 30 s ad; turning everything into
+  comma-chains races through and leaves the punchline no room to land. What
+  works: **commas inside the enumeration, a full stop only right before the
+  punchline** — about 6–8 sentence-ends per 30 s. Word count barely changes;
+  the length lives in the pauses. Never attach a clause with ", and" / ", so"
+  where you want a pause — start a new sentence; no subject-less trailing
+  clauses.
+- **TTS pitfalls sign-off** (checklist in `replicate-audio.md`): before the
+  script is approved, read it for the three textual causes of mispronunciation
+  — a **colon** before a punchline (the model keeps the pitch rising and reads
+  it as a question; use a period and a full declarative sentence), a **brand
+  name standing alone as a one-word sentence** (a name foreign to the
+  narration language gets nativized — "Overview." was read as "*Über*view" by
+  a German voice), and **minimal pairs** the listener could mishear (de:
+  lebst/liebst) — rephrase around them. Every one of these was caught by the
+  client, not the producer.
 - **Per scene**:
   - id and narration (1–2 spoken sentences, written for the ear);
   - **visual**: which real screen is recreated inside which vehicle — browser
@@ -274,9 +307,11 @@ Then write the narration and scene plan:
     and the count badge ticks up"). Abstract/icon visuals are a last resort
     for claims with no UI (e.g. privacy) — never for a feature that has a screen;
   - **on-screen keywords** (0–4, verbatim from the narration): the payoff
-    words — benefits, numbers, the product name. Apply the **billboard test**
-    to each keyword *on its own*: would it work as a billboard line for this
-    product, without hearing the voice? Prefer 2–4-word claims with a noun:
+    words — benefits, numbers, the product name. Each must appear in the
+    narration as a **contiguous phrase**, word for word — the caption matcher
+    requires the whole phrase in order and throws otherwise. Apply the
+    **billboard test** to each keyword *on its own*: would it work as a
+    billboard line for this product, without hearing the voice? Prefer 2–4-word claims with a noun:
     "LIVE CROWD COUNT", "100% ANONYMOUS", "ZERO SETUP". Lone adjectives or
     verbs ripped from a sentence fail ("PACKED", "FASTER", "BUILDS" — random
     words to a muted viewer), as do connective fragments ("right now", "how
@@ -307,7 +342,12 @@ Then write the narration and scene plan:
     cut. Decide this at scene-plan time, not in the edit.
 - **One narrator**: exactly one voice AND one delivery-style prompt for the
   whole video (see `replicate-audio.md` — varying the style per clip makes the
-  narrator sound like a different person between scenes).
+  narrator sound like a different person between scenes). Build that prompt
+  from the three separate clauses in the reference (word rate / pause length /
+  emphasis) — they are independent knobs, and "too slow" or "rushed" is almost
+  always the **pause** clause, not the rate. When tuning it later, change
+  **one clause per iteration** and re-measure; a full rewrite silently drops a
+  clause and costs a whole generation run.
 
 Present the through-line as one sentence first ("A festival organizer wonders
 if the east entrance is overcrowded — CityPulse answers it live, then proves
@@ -331,15 +371,28 @@ Load `references/replicate-audio.md`, then:
    music-prompt axes in the reference — never one generic prompt.
 4. Run `node scripts/replicate-audio.mjs generate audio-config.json`.
    Files land in `public/audio/`. Verify every expected file exists.
-5. Have the user listen to both music candidates
+5. **Read the length warnings** — the script checks every narration clip
+   against its predicted duration and prints `warn: … possible double read`
+   (or truncation) plus `lengthOk: false` in the JSON. Never skip past one:
+   the model occasionally reads a text twice, and because scene lengths follow
+   the audio, nothing else in the pipeline will ever complain — the scene just
+   silently runs 10 s long. This is a *generation* failure, so regenerating
+   the same clip id is the right fix. Then run
+   `node scripts/replicate-audio.mjs calibrate audio-config.json`, paste the
+   fitted `speech` constants into the config, and check the total runtime
+   against the target before building anything.
+6. Have the user listen to both music candidates
    (`open public/audio/music-a.wav`) and pick; wire the winner into
    `Soundtrack`.
-6. Ask the user to spot-check the narration clips too (`open public/audio/`).
+7. Ask the user to spot-check the narration clips too (`open public/audio/`).
    If a clip sounds rushed or a pause got eaten, **rephrase the sentence**
-   per the TTS-safe shape rules (usually: split at the comma) and regenerate
+   per the punctuation rules (usually: split at the comma) and regenerate
    only that clip id — regenerating the identical text tends to reproduce
-   the artifact.
-7. Download the needed sound effects (free, no API) into `public/sfx/` —
+   the artifact. If the *whole* video is off-pace, fix the style prompt's
+   pause clause instead of the script. For a small global speed change, add a
+   per-clip `tempo` and run `retempo` — free and reversible, but it scales
+   words and pauses equally, so it buys length, never emphasis.
+8. Download the needed sound effects (free, no API) into `public/sfx/` —
    list and placement rules in `components.md` (SfxLayer).
 
 ## Phase 6 — Build the Remotion project
@@ -401,9 +454,26 @@ preset in `references/styles.md`. Then:
 
 ## Phase 7 — Visual QA (required)
 
-For every scene, render stills at ~20 %, ~55 %, and ~85 % of its duration
-(`npx remotion still <CompId> out/qa/<scene>-55.png --frame=<n> --scale=0.5`),
-then **look at every image** and check:
+Build a **contact sheet** — one image per video that shows every scene at
+three moments. Render the video once at `--scale=0.5`, compute each scene's
+boundaries from the audio durations (the same numbers `calculateMetadata`
+uses: clip length + tail, minus transition overlaps), pull a still at 20 %,
+55 % and 85 % of every scene with `ffmpeg -ss <seconds> -i out/qa.mp4
+-frames:v 1 out/qa/<scene>-55.png`, then tile them into a single image with
+ImageMagick — **one column per scene, three rows**:
+
+```bash
+montage out/qa/*.png -tile <sceneCount>x3 -geometry +4+4 out/qa/contact.png
+```
+
+If ImageMagick is missing, `ffmpeg -filter_complex tile` does the same job; if
+neither is available, fall back to reading the individual stills. One glance
+at one image then answers most of the checklist below — and it is far cheaper
+than 15–20 `remotion still` calls, each of which re-bundles the project. Build
+one sheet **per composition** (per format, per industry variant): a single
+sheet is what catches a variant showing another industry's sample data.
+
+**Look at the sheet** and check:
 
 - The three stills of each scene differ visibly. If two look identical, the
   scene is frozen there — add choreography (this is the slideshow check).
@@ -412,8 +482,9 @@ then **look at every image** and check:
   that hasn't fired). Every still must look complete even with no caption
   active. Check the video's very first frame too — it must already be
   mid-motion, not settled and waiting.
-- Cuts are smooth: for every cut, render stills bracketing it (cut − 6,
-  cut − 1, cut + 4) and flip through them — the change between neighbors
+- Cuts are smooth: for every cut, render bracketing stills with
+  `npx remotion still` (cut − 6, cut − 1, cut + 4) — frame-exact work the
+  contact sheet can't do — and flip through them; the change between neighbors
   must be gradual, with elements mid-fade and mid-move on both sides. Any
   element that pops in at full opacity, vanishes in a frame, or jumps
   position between neighboring stills is abrupt — ease it and overlap the
@@ -425,7 +496,13 @@ then **look at every image** and check:
 - One clear focal point; text inside safe areas and not overflowing; readable
   contrast; keyword captions legible; mockups not clipped.
 - The recreated screens actually resemble the product — compare against the
-  real component code, not memory.
+  real component code, not memory. In a variant video, the sample data belongs
+  to *this* variant's industry (a hair-salon service in the trades cut is the
+  classic leak).
+- On-screen text still matches what the voice says in that scene. Scene
+  strings are hardcoded, so a narration edit silently leaves them behind — the
+  voice saying "du erlebst ihn jeden Tag" over a screen still reading "Du
+  lebst ihn." only ever shows up here.
 - The UI inside mockups holds up **as UI**: everything aligned to a grid,
   nothing overlapping or clipped, charts fully drawn in their settled state,
   numbers and labels internally consistent and plausible for the product
@@ -436,8 +513,8 @@ then **look at every image** and check:
 - Variety: lay one still per scene side by side — no two scenes share the same
   layout silhouette, and the hero device never sits in the same spot twice.
 
-Fix and re-render stills until clean. Offer `npx remotion studio` if the user
-wants to preview interactively.
+Fix and rebuild the contact sheet until clean. Offer `npx remotion studio` if
+the user wants to preview interactively.
 
 ## Phase 8 — Render and deliver
 
@@ -450,11 +527,28 @@ wants to preview interactively.
 
 ## Iterating on feedback
 
-- Copy/visual changes: edit the scene components, re-run Phase 7 stills, re-render.
-- Narration changes: update `audio-config.json`, regenerate **only** the
-  affected clip ids, re-render (durations adapt automatically).
+- Copy/visual changes: edit the scene components, rebuild the Phase 7 contact
+  sheet, re-render.
+- **Narration changes** — every text edit desynchronises three things that
+  fail silently. Run all four steps, every time:
+  1. Update `audio-config.json` and regenerate **only** the affected clip ids
+     (durations adapt automatically); read the length warning.
+  2. Re-read that scene's component and update every **hardcoded on-screen
+     string** to match the new line — the visual does not follow the voice.
+  3. Check every `atWord()` target and keyword in that scene still occurs in
+     the new text, and at the intended occurrence. The helpers throw on a
+     miss, so a stale target fails the render loudly — but a target that still
+     matches a *different* occurrence won't, and that is the one that moves a
+     caption onto the wrong beat.
+  4. Rebuild the contact sheet for that scene.
 - New format (e.g. 9:16 after 16:9): add a second `<Composition>` with new
   dimensions, adjust layout constants per `styles.md`, reuse all audio.
+- **Audience/industry variants** (the same ad recut for salons, trades, …):
+  one composition with an `industry` prop, per-industry voiceover only for the
+  scenes that name the trade — the pattern is in `remotion-guide.md`. Marginal
+  cost is ~2 TTS clips and one config object per industry, so when a second
+  audience shares the pain and the story and differs only in vocabulary and
+  sample data, this is a variant pass, not a second video.
 
 ## The improvement pass
 
@@ -463,7 +557,8 @@ When asked to improve an existing video rather than build one:
 1. **Diagnose before touching code**: render the current cut once at
    `--scale=0.35`, then extract 15–20 evenly spaced frames with ffmpeg
    (`ffmpeg -i out/final.mp4 -vf fps=0.5 out/qa/f%02d.png` — far cheaper
-   than many `remotion still` calls, each of which re-bundles the project).
+   than many `remotion still` calls, each of which re-bundles the project)
+   and montage them into one contact sheet as in Phase 7.
    Re-read the real product's screens, then write a defect list.
 2. **Order fixes by screen-time impact**: a shared canvas component that
    appears in 3 scenes outranks any single-scene fix.
@@ -498,6 +593,17 @@ When asked to improve an existing video rather than build one:
 - TTS input drift: every voiceover clip must have identical input except
   `text` (same voice, same style prompt verbatim) — otherwise the narrator
   audibly changes between scenes. The generation script errors on drift.
+- **A silently double-read clip is invisible without the length check.** Scene
+  lengths follow the audio, so a clip the model read twice produces no error
+  and no log — the scene is simply 10 s too long. Never ignore a `warn:`
+  length line from `generate`.
+- A **colon** makes the voice ask a question (the pitch keeps rising), and a
+  **brand name alone as a sentence** gets nativized ("Overview." → "Überview").
+  Both are textual bugs — fix the script, not the audio. Intonation is not
+  machine-checkable; verify by listening.
+- `atempo` (the `tempo` field) scales words and pauses equally: it buys
+  length, never emphasis. Reach for the style prompt's pause clause when a
+  punchline doesn't land.
 - Music from Lyria-2 is ~30 s — loop it with `<Audio loop>` for longer videos
   (the `Soundtrack` component in `components.md` handles loop + fades + ducking).
 - Never commit `.env` or the Replicate token; add `out/` and `node_modules/` to

@@ -42,6 +42,7 @@ re-render anytime.
 | Node.js ≥ 18 | Remotion + the audio generation script |
 | A [Replicate](https://replicate.com) account + API token | voiceover & music (paid API, typically well under $1 per video) |
 | ~2 GB free disk | Remotion downloads a headless Chrome on first render |
+| ffmpeg + ImageMagick (recommended) | clip-length checks, speech calibration, tempo control, QA contact sheets — `brew install ffmpeg imagemagick` |
 
 Set your Replicate token before generating audio (Claude will remind you):
 
@@ -101,9 +102,11 @@ Claude will then:
 4. **Write the script** — narration, on-screen keywords, and a visual concept
    per scene. **Nothing is generated until you approve** (this is the step
    that starts spending Replicate credits).
-5. **Generate audio** — per-scene voiceover clips + a music track.
-6. **Build & verify** — scaffolds a Remotion project, builds the scenes,
-   checks rendered still frames of every scene.
+5. **Generate audio** — per-scene voiceover clips + a music track, then checks
+   every clip against its predicted length (this is what catches a line the
+   TTS silently read twice) and calibrates the speech model for your voice.
+6. **Build & verify** — scaffolds a Remotion project, builds the scenes, and
+   reviews a QA contact sheet showing every scene at three moments.
 7. **Render** — final MP4, ready to post.
 
 ### Iterating
@@ -113,6 +116,13 @@ colors, or pacing and re-render. Regenerating a single scene's voiceover:
 
 ```bash
 node scripts/replicate-audio.mjs generate audio-config.json scene-02
+```
+
+Speed a clip up without paying for a new one — set `"tempo": 1.05` on it and
+re-derive from the preserved original (free, reversible):
+
+```bash
+node scripts/replicate-audio.mjs retempo audio-config.json scene-02
 ```
 
 Or preview and scrub interactively:
@@ -133,13 +143,14 @@ assets/
 skills/saas-video/
   SKILL.md                  # the workflow Claude follows
   references/
-    replicate-audio.md      # TTS & music: voices, prompts, mixing levels
+    replicate-audio.md      # TTS & music: voices, style prompt, duration model,
+                            # TTS pitfalls, mixing levels
     remotion-guide.md       # condensed Remotion best practices
     styles.md               # 5 visual style presets
     components.md           # device mockups, keyword captions, backgrounds (TSX)
   scripts/
     replicate-audio.mjs     # zero-dependency Replicate client (schema discovery,
-                            # generation, polling, downloads)
+                            # generation, length checks, calibration, tempo)
 ```
 
 ## Troubleshooting
@@ -153,6 +164,12 @@ skills/saas-video/
   so it adapts when Replicate updates the models.
 - **Want a second format?** — ask Claude for a 9:16 variant after the 16:9
   render; all audio is reused, only the layout is adapted.
+- **Want the same ad for another audience?** — ask for an industry variant.
+  One composition, an `industry` prop: only the scenes that name the trade get
+  new voiceover, so each extra cut costs about two TTS clips.
+- **A scene runs far too long** — the TTS occasionally reads a line twice.
+  The generation script warns about it (`possible double read`); regenerate
+  that clip id.
 
 ## Updating
 

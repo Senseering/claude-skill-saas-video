@@ -273,25 +273,56 @@ export const estimateWordTimings = (
 export const cleanWord = (w: string) =>
   w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, "");
 
-// Frame at which `word` is spoken (first word if a phrase is passed).
-// THE tool for choreography: make things happen when the narrator says them.
+// Match the WHOLE phrase as consecutive words and return the timing of its
+// first word. Matching only the phrase's first word puts "even on Sundays"
+// on the "even" of "even at night" — a caption on the wrong beat, in a
+// place nobody thinks to look.
+export const findPhrase = (
+  timings: WordTiming[],
+  phrase: string,
+  fromIndex = 0,
+  occurrence = 1,
+): WordTiming | null => {
+  const target = phrase.split(/\s+/).map(cleanWord).filter(Boolean);
+  if (!target.length) return null;
+  let seen = 0;
+  for (let i = fromIndex; i <= timings.length - target.length; i++) {
+    if (target.every((t, k) => cleanWord(timings[i + k].word) === t)) {
+      if (++seen === occurrence) return timings[i];
+    }
+  }
+  return null;
+};
+
+// Frame at which `phrase` is spoken. THE tool for choreography: make things
+// happen when the narrator says them.
+// Throws rather than defaulting to frame 0 — after a narration edit, a target
+// that no longer occurs is a real desync, and a beat silently snapping to the
+// start of the scene is exactly the bug that ships.
 export const atWord = (
   narration: string,
-  word: string,
+  phrase: string,
   audioDurationInSeconds: number,
   fps: number,
   occurrence = 1,
 ): number => {
-  const target = cleanWord(word.split(/\s+/)[0]);
-  let seen = 0;
-  for (const t of estimateWordTimings(narration, audioDurationInSeconds)) {
-    if (cleanWord(t.word) === target && ++seen === occurrence) {
-      return Math.round(t.startSeconds * fps);
-    }
+  const timings = estimateWordTimings(narration, audioDurationInSeconds);
+  const hit = findPhrase(timings, phrase, 0, occurrence);
+  if (!hit) {
+    throw new Error(
+      `atWord: "${phrase}" (occurrence ${occurrence}) is not in the narration — ` +
+        `update the beat after a script change. Narration: "${narration}"`,
+    );
   }
-  return 0;
+  return Math.round(hit.startSeconds * fps);
 };
 ```
+
+`atWord` throwing **is** the script-change checker: after every narration edit
+the render (or Studio) fails immediately and names the target that vanished,
+instead of quietly moving a beat to frame 0. Occurrence numbers matter too —
+a word that still appears but at a different occurrence will not throw, so
+re-check those by hand (Phase 7 contact sheet catches the rest).
 
 Scene usage — every visual event gets a beat frame from the narration:
 
@@ -345,7 +376,7 @@ rendered inside that scene's `TransitionSeries.Sequence` (frame 0 = scene start)
 import React, { useMemo } from "react";
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { theme } from "../theme";
-import { cleanWord, estimateWordTimings } from "./word-timings";
+import { estimateWordTimings, findPhrase } from "./word-timings";
 
 type Timing = { word: string; startFrame: number; endFrame: number };
 
@@ -364,9 +395,15 @@ export const estimateKeywordTimings = ({
   const timings: Timing[] = [];
   let searchFrom = 0;
   for (const keyword of keywords) {
-    const first = cleanWord(keyword.split(/\s+/)[0]);
-    const hit = words.find((w) => w.index >= searchFrom && cleanWord(w.word) === first);
-    if (!hit) continue; // keyword must literally appear in the narration
+    // Whole phrase, in order, after the previous keyword — never just its
+    // first word, or "even on Sundays" lands on "even at night".
+    const hit = findPhrase(words, keyword, searchFrom);
+    if (!hit) {
+      throw new Error(
+        `KeywordCaptions: "${keyword}" does not occur in the narration after the ` +
+          `previous keyword — keywords must be verbatim. Narration: "${narration}"`,
+      );
+    }
     searchFrom = hit.index + 1;
     timings.push({ word: keyword, startFrame: Math.round(hit.startSeconds * fps), endFrame: 0 });
   }
@@ -422,7 +459,10 @@ export const KeywordCaptions: React.FC<{
 Rules: the component is an overlay (`AbsoluteFill`) — scenes must NOT reserve
 an empty bottom strip for it; design the layout as if captions didn't exist
 and let them float over it with their own contrast. Keywords must appear
-verbatim in the narration; 0–4 per scene; each
+verbatim in the narration **as a contiguous phrase** — the matcher requires
+the whole phrase in order and throws if it is missing, so a narration edit
+that drops a keyword fails the render instead of mistiming the caption;
+0–4 per scene; each
 must pass the billboard test *standalone* — 2–4-word claims with a noun like
 "10× faster deploys", "zero config", "100% anonymous". Lone adjectives/verbs
 ripped from a sentence ("PACKED", "FASTER") read as random words to a muted

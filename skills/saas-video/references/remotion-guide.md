@@ -284,12 +284,66 @@ Call at module top level (e.g. in `theme.ts`); rendering blocks until loaded.
 - Strong text/background contrast; add a backing shape or dim the background
   when in doubt.
 
+## Audience/industry variants (one composition, an `industry` prop)
+
+Audience cuts of the same ad — salons, trades, clinics — are nearly free, and
+they are a standard ad requirement. Do NOT fork the project: keep **one** scene
+tree and select a per-industry config object with a prop.
+
+```tsx
+// src/industries.ts
+export type Industry = "hair" | "trades";
+
+export const INDUSTRIES = {
+  hair: {
+    verb: "book",                                   // narration-matched wording
+    services: ["Balayage", "Cut & finish"],         // sample data in the recreated screen
+    closing: "Built for salons.",
+  },
+  trades: {
+    verb: "schedule",
+    services: ["Boiler service", "Leak repair"],
+    closing: "Built for the trades.",
+  },
+} as const satisfies Record<Industry, unknown>;
+```
+
+```tsx
+// src/Root.tsx — one Composition per industry, same component
+{(Object.keys(INDUSTRIES) as Industry[]).map((industry) => (
+  <Composition
+    key={industry}
+    id={`MarketingVideo-${industry}`}
+    component={MarketingVideo}
+    fps={FPS} width={1080} height={1920}
+    durationInFrames={900}
+    defaultProps={{ industry, scenes: scenesFor(industry) }}
+    calculateMetadata={calculateMetadata}
+  />
+))}
+```
+
+Only the scenes that actually name the trade get their own voiceover — in
+practice the hook and the closing line. `scenesFor(industry)` swaps just those
+audio filenames; every middle scene keeps the shared WAV:
+
+```ts
+// scene-01-hair.wav / scene-01-trades.wav, but scene-02..04.wav shared
+const scenesFor = (industry: Industry) =>
+  scenes.map((s) => ({ ...s, audio: s.perIndustry ? `${s.id}-${industry}.wav` : s.audio }));
+```
+
+Marginal cost per extra industry: **2 TTS clips and one config object.** The
+audio config gets those two clips (same voice and style prompt as everything
+else — the drift guard still applies), and everything else is reused.
+
+QA every variant separately with its own contact sheet: the failure this
+pattern invites is a variant showing another industry's sample data (salon
+services in the trades cut), and only a per-variant sheet shows it.
+
 ## Verification and rendering
 
 ```bash
-# Still frames for QA — look at every one with the Read tool:
-npx remotion still MarketingVideo out/qa/scene-01.png --frame=45 --scale=0.5
-
 # Interactive preview for the user:
 npx remotion studio
 
@@ -297,11 +351,29 @@ npx remotion studio
 npx remotion render MarketingVideo out/final.mp4
 ```
 
-QA stills: three per scene, at ~20 %, ~55 %, and ~85 % of the scene (compute
-frames from cumulative scene durations minus transition overlaps). The three
-stills of a scene must differ visibly — identical stills mean the scene is
-frozen there and needs more choreography. First render downloads a headless
-Chrome — slow once, then cached.
+**QA contact sheet** (the standard pass — one image per composition): render
+once at `--scale=0.5`, then cut stills at ~20 %, ~55 %, and ~85 % of every
+scene and tile them, one column per scene:
+
+```bash
+npx remotion render MarketingVideo out/qa.mp4 --scale=0.5
+ffmpeg -ss <seconds> -i out/qa.mp4 -frames:v 1 out/qa/<scene>-55.png   # per still
+montage out/qa/*.png -tile <sceneCount>x3 -geometry +4+4 out/qa/contact.png
+```
+
+Scene boundaries come from the same numbers `calculateMetadata` uses —
+cumulative `durationInFrames` minus `TRANSITION_FRAMES` per elapsed cut. The
+three stills of a scene must differ visibly; identical stills mean the scene is
+frozen there and needs more choreography.
+
+For frame-exact work — bracketing a cut, or inspecting a UI-heavy scene at full
+size — use `remotion still` directly:
+
+```bash
+npx remotion still MarketingVideo out/qa/scene-01.png --frame=45 --scale=1
+```
+
+First render downloads a headless Chrome — slow once, then cached.
 
 ## Optional: word-accurate caption timing
 
